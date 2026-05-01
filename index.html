@@ -1,714 +1,538 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#534AB7" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="MG Planner" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#534AB7"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="MG Planner"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
   <title>MG Daily Planner</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --purple-50: #EEEDFE; --purple-200: #AFA9EC; --purple-400: #7F77DD;
-      --purple-600: #534AB7; --purple-800: #3C3489; --purple-900: #26215C;
-      --teal-50: #E1F5EE; --teal-400: #1D9E75; --teal-600: #0F6E56;
-      --coral-50: #FAECE7; --coral-400: #D85A30; --coral-600: #993C1D;
-      --amber-50: #FAEEDA; --amber-400: #BA7517; --amber-600: #854F0B;
-      --blue-50: #E6F1FB; --blue-400: #378ADD; --blue-600: #185FA5;
-      --green-50: #EAF3DE; --green-400: #639922; --green-600: #3B6D11;
-      --gray-50: #F1EFE8; --gray-200: #B4B2A9; --gray-600: #5F5E5A;
-      --bg: #ffffff; --bg2: #f5f4f0; --bg3: #eeede8;
-      --text: #1a1a18; --text2: #5f5e5a; --text3: #9a9990;
-      --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
-      --radius: 10px; --radius-lg: 14px;
-      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --mono: 'SF Mono', 'Fira Code', monospace;
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --pu:#534AB7;--pu-l:#EEEDFE;--pu-d:#3C3489;--pu-t:#AFA9EC;
+      --te-l:#E1F5EE;--te:#0F6E56;--te-t:#5DCAA5;
+      --co-l:#FAECE7;--co:#993C1D;--co-t:#F0997B;
+      --am-l:#FAEEDA;--am:#854F0B;--am-t:#EF9F27;
+      --bl-l:#E6F1FB;--bl:#185FA5;--bl-t:#85B7EB;
+      --gr-l:#EAF3DE;--gr:#3B6D11;--gr-t:#97C459;
+      --bg:#fff;--bg2:#f5f4f0;--bg3:#eae9e4;
+      --tx:#1a1a18;--tx2:#5f5e5a;--tx3:#9a9990;
+      --bd:rgba(0,0,0,.1);--bd2:rgba(0,0,0,.18);
+      --r:10px;--rl:14px;
+      --ff:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      --fm:'SF Mono','Fira Code',monospace;
     }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --purple-50: #26215C; --purple-200: #534AB7; --purple-400: #AFA9EC; --purple-800: #CECBF6;
-        --teal-50: #04342C; --teal-400: #9FE1CB; --teal-600: #5DCAA5;
-        --coral-50: #4A1B0C; --coral-400: #F0997B; --coral-600: #F5C4B3;
-        --amber-50: #412402; --amber-400: #EF9F27; --amber-600: #FAC775;
-        --blue-50: #042C53; --blue-400: #85B7EB; --blue-600: #B5D4F4;
-        --green-50: #173404; --green-400: #97C459; --green-600: #C0DD97;
-        --gray-50: #2c2c2a; --gray-200: #444441; --gray-600: #888780;
-        --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2c;
-        --text: #f0ede8; --text2: #a0a09a; --text3: #6a6a65;
-        --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
-      }
-    }
-
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 16px; }
-
-    .app { max-width: 600px; margin: 0 auto; padding: 0 0 80px; min-height: 100vh; }
-
-    /* Header */
-    .header { padding: 52px 20px 16px; background: var(--bg); position: sticky; top: 0; z-index: 10; border-bottom: 0.5px solid var(--border); }
-    .header-row { display: flex; align-items: center; justify-content: space-between; }
-    .header h1 { font-size: 18px; font-weight: 600; color: var(--text); }
-    .header-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
-    .sync-badge { font-size: 11px; padding: 4px 10px; border-radius: 99px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
-    .sync-badge.synced { background: var(--green-50); color: var(--green-600); }
-    .sync-badge.syncing { background: var(--amber-50); color: var(--amber-600); }
-    .sync-badge.offline { background: var(--gray-50); color: var(--gray-600); }
-    .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-    /* Tabs */
-    .tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border); background: var(--bg); position: sticky; top: 73px; z-index: 9; padding: 0 20px; }
-    .tab { flex: 1; padding: 12px 0; font-size: 13px; font-weight: 500; color: var(--text2); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: all 0.15s; }
-    .tab.active { color: var(--purple-600); border-bottom-color: var(--purple-600); }
-
-    /* Content */
-    .page { display: none; padding: 20px; }
-    .page.active { display: block; }
-
-    /* Cards & sections */
-    .section-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; margin-top: 20px; }
-    .section-label:first-child { margin-top: 0; }
-    .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; }
-    .card-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-    .card-sub { font-size: 13px; color: var(--text2); }
-
-    /* Toggle buttons */
-    .toggle-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-    .toggle-btn { padding: 7px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; font-size: 13px; cursor: pointer; color: var(--text); transition: all 0.15s; font-family: var(--font); }
-    .toggle-btn.active { background: var(--purple-600); color: #fff; border-color: var(--purple-600); }
-    .toggle-btn:active { transform: scale(0.97); }
-
-    /* Inputs */
-    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .input-group label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
-    input[type="number"], select { width: 100%; padding: 9px 12px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text); font-size: 14px; font-family: var(--font); appearance: none; }
-    input[type="number"]:focus, select:focus { outline: 2px solid var(--purple-600); outline-offset: 1px; }
-
-    /* Primary button */
-    .btn-primary { width: 100%; padding: 14px; border-radius: var(--radius-lg); background: var(--purple-600); color: #fff; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px; font-family: var(--font); transition: background 0.15s; }
-    .btn-primary:hover { background: var(--purple-800); }
-    .btn-primary:active { transform: scale(0.99); }
-    .btn-secondary { width: 100%; padding: 12px; border-radius: var(--radius-lg); background: transparent; color: var(--text2); border: 0.5px solid var(--border2); font-size: 14px; cursor: pointer; margin-top: 10px; font-family: var(--font); }
-
-    /* Schedule blocks */
-    .time-block { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
-    .time-label { font-size: 11px; color: var(--text3); min-width: 58px; text-align: right; padding-top: 16px; font-weight: 500; font-family: var(--mono); }
-    .block-body { flex: 1; border-radius: var(--radius-lg); padding: 12px 14px; border: 0.5px solid var(--border); }
-    .block-title { font-size: 14px; font-weight: 500; }
-    .block-sub { font-size: 12px; margin-top: 2px; opacity: 0.75; }
-    .timer-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
-    .timer-display { font-size: 22px; font-weight: 600; font-family: var(--mono); min-width: 70px; }
-    .timer-controls { display: flex; gap: 6px; }
-    .t-btn { padding: 5px 12px; border-radius: 99px; border: 0.5px solid var(--border2); background: rgba(255,255,255,0.15); font-size: 12px; cursor: pointer; color: inherit; font-family: var(--font); }
-    .t-btn:active { transform: scale(0.96); }
-    .b-purple { background: var(--purple-50); border-color: var(--purple-200); }
-    .b-purple .block-title { color: var(--purple-800); }
-    .b-teal { background: var(--teal-50); border-color: var(--teal-600); }
-    .b-teal .block-title { color: var(--teal-600); }
-    .b-coral { background: var(--coral-50); border-color: var(--coral-600); }
-    .b-coral .block-title { color: var(--coral-600); }
-    .b-amber { background: var(--amber-50); border-color: var(--amber-600); }
-    .b-amber .block-title { color: var(--amber-600); }
-    .b-blue { background: var(--blue-50); border-color: var(--blue-600); }
-    .b-blue .block-title { color: var(--blue-600); }
-    .b-green { background: var(--green-50); border-color: var(--green-600); }
-    .b-green .block-title { color: var(--green-600); }
-    .b-gray { background: var(--bg2); border-color: var(--border); }
-    .b-gray .block-title { color: var(--text); }
-
-    /* Summary cards */
-    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
-    .sum-card { background: var(--bg2); border-radius: var(--radius); padding: 12px; }
-    .sum-val { font-size: 20px; font-weight: 600; }
-    .sum-lbl { font-size: 11px; color: var(--text2); margin-top: 2px; }
-
-    /* Growth path */
-    .growth-card { border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; border: 0.5px solid var(--border); }
-    .growth-month { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-    .growth-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
-    .progress-bar-wrap { height: 4px; background: var(--bg3); border-radius: 99px; margin-top: 8px; overflow: hidden; }
-    .progress-bar { height: 100%; background: var(--purple-600); border-radius: 99px; transition: width 0.6s ease; }
-
-    /* Log */
-    .log-entry { background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid var(--purple-600); }
-    .log-date { font-size: 12px; color: var(--text3); margin-bottom: 4px; font-family: var(--mono); }
-    .log-line { font-size: 13px; color: var(--text2); margin-top: 2px; }
-    .log-line strong { color: var(--text); font-weight: 500; }
-    .empty-state { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 14px; }
-
-    /* Setup screen */
-    .setup-screen { padding: 40px 24px; text-align: center; }
-    .setup-screen h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
-    .setup-screen p { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 24px; }
-    .setup-input { width: 100%; padding: 12px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text); font-size: 15px; margin-bottom: 10px; font-family: var(--font); }
-    .setup-screen .hint { font-size: 12px; color: var(--text3); margin-top: 8px; line-height: 1.5; }
-
-    /* Streak */
-    .streak-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
-    .streak-dot { width: 20px; height: 20px; border-radius: 4px; background: var(--bg3); }
-    .streak-dot.done { background: var(--purple-600); }
-    .streak-dot.today { background: var(--purple-400); outline: 2px solid var(--purple-600); }
+    @media(prefers-color-scheme:dark){:root{
+      --pu-l:#26215C;--pu-t:#534AB7;--pu-d:#CECBF6;
+      --te-l:#04342C;--te:#9FE1CB;--te-t:#5DCAA5;
+      --co-l:#4A1B0C;--co:#F5C4B3;--co-t:#D85A30;
+      --am-l:#412402;--am:#FAC775;--am-t:#BA7517;
+      --bl-l:#042C53;--bl:#B5D4F4;--bl-t:#378ADD;
+      --gr-l:#173404;--gr:#C0DD97;--gr-t:#639922;
+      --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2c;
+      --tx:#f0ede8;--tx2:#a0a09a;--tx3:#6a6a65;
+      --bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.18);
+    }}
+    html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--ff);font-size:16px}
+    .app{max-width:620px;margin:0 auto;padding-bottom:80px;min-height:100vh}
+    .hdr{padding:48px 20px 12px;background:var(--bg);position:sticky;top:0;z-index:10;border-bottom:.5px solid var(--bd)}
+    .hdr-row{display:flex;align-items:center;justify-content:space-between}
+    .hdr h1{font-size:18px;font-weight:600}
+    .hdr-sub{font-size:13px;color:var(--tx2);margin-top:2px}
+    .sync{font-size:11px;padding:4px 10px;border-radius:99px;font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer}
+    .sync.ok{background:var(--gr-l);color:var(--gr)}
+    .sync.ing{background:var(--am-l);color:var(--am)}
+    .sync.off{background:var(--bg2);color:var(--tx3)}
+    .sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+    .tabs{display:flex;border-bottom:.5px solid var(--bd);background:var(--bg);position:sticky;top:69px;z-index:9;padding:0 16px}
+    .tab{flex:1;padding:11px 0;font-size:12px;font-weight:500;color:var(--tx2);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-.5px;font-family:var(--ff);transition:all .12s}
+    .tab.on{color:var(--pu);border-bottom-color:var(--pu)}
+    .pg{display:none;padding:20px}.pg.on{display:block}
+    .slbl{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 8px}
+    .slbl:first-child{margin-top:0}
+    .card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:14px 16px;margin-bottom:10px}
+    .ctitle{font-size:15px;font-weight:500;color:var(--tx);margin-bottom:6px}
+    .csub{font-size:13px;color:var(--tx2)}
+    .trow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+    .tb{padding:7px 14px;border-radius:99px;border:.5px solid var(--bd2);background:transparent;font-size:13px;cursor:pointer;color:var(--tx);font-family:var(--ff);transition:all .12s}
+    .tb.on{background:var(--pu);color:#fff;border-color:var(--pu)}
+    .tb:active{transform:scale(.97)}
+    .irow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .ilbl{font-size:12px;color:var(--tx2);margin-bottom:4px}
+    input[type=number],input[type=time],input[type=text]{width:100%;padding:9px 12px;border-radius:var(--r);border:.5px solid var(--bd2);background:var(--bg2);color:var(--tx);font-size:14px;font-family:var(--ff)}
+    input:focus{outline:2px solid var(--pu);outline-offset:1px}
+    .btnp{width:100%;padding:13px;border-radius:var(--rl);background:var(--pu);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;font-family:var(--ff)}
+    .btnp:hover{background:var(--pu-d)}.btnp:active{transform:scale(.99)}
+    .btns{width:100%;padding:11px;border-radius:var(--rl);background:transparent;color:var(--tx2);border:.5px solid var(--bd2);font-size:14px;cursor:pointer;margin-top:8px;font-family:var(--ff)}
+    .sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+    .scard{background:var(--bg2);border-radius:var(--r);padding:10px 12px}
+    .sval{font-size:20px;font-weight:600;color:var(--tx)}
+    .slb2{font-size:11px;color:var(--tx2);margin-top:2px}
+    .tblk{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+    .tlbl{font-size:11px;color:var(--tx3);min-width:60px;text-align:right;padding-top:14px;font-family:var(--fm);font-weight:500}
+    .bb{flex:1;border-radius:var(--rl);padding:11px 14px;border:.5px solid var(--bd)}
+    .btitle{font-size:14px;font-weight:500}.bsub{font-size:12px;margin-top:2px;opacity:.75}
+    .tctrls{display:flex;align-items:center;gap:6px;margin-top:8px}
+    .tdisp{font-size:20px;font-weight:600;font-family:var(--fm);min-width:62px}
+    .tcbtn{padding:4px 12px;border-radius:99px;border:.5px solid rgba(128,128,128,.25);background:rgba(128,128,128,.1);font-size:12px;cursor:pointer;color:inherit;font-family:var(--ff)}
+    .b-pu{background:var(--pu-l);border-color:var(--pu-t)}.b-pu .btitle{color:var(--pu-d)}
+    .b-te{background:var(--te-l);border-color:var(--te-t)}.b-te .btitle{color:var(--te)}
+    .b-co{background:var(--co-l);border-color:var(--co-t)}.b-co .btitle{color:var(--co)}
+    .b-am{background:var(--am-l);border-color:var(--am-t)}.b-am .btitle{color:var(--am)}
+    .b-bl{background:var(--bl-l);border-color:var(--bl-t)}.b-bl .btitle{color:var(--bl)}
+    .b-gr{background:var(--gr-l);border-color:var(--gr-t)}.b-gr .btitle{color:var(--gr)}
+    .b-gy{background:var(--bg2);border-color:var(--bd)}.b-gy .btitle{color:var(--tx)}
+    .loge{background:var(--bg2);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;margin-bottom:8px;border-left:3px solid var(--pu)}
+    .logd{font-size:11px;color:var(--tx3);margin-bottom:4px;font-family:var(--fm)}
+    .logl{font-size:13px;color:var(--tx2);margin-top:2px}.logl b{color:var(--tx);font-weight:500}
+    .growcard{border-radius:var(--rl);padding:14px 16px;margin-bottom:8px;border:.5px solid var(--bd)}
+    .gmonth{font-size:13px;font-weight:600;margin-bottom:4px}
+    .gtext{font-size:13px;color:var(--tx2);line-height:1.5}
+    .pbar{height:4px;background:var(--bg3);border-radius:99px;margin-top:8px;overflow:hidden}
+    .pbfill{height:100%;background:var(--pu);border-radius:99px;transition:width .5s ease}
+    .sdot{width:18px;height:18px;border-radius:4px;background:var(--bg3);display:inline-block;margin:2px}
+    .sdot.done{background:var(--pu)}.sdot.today{background:#7F77DD;outline:2px solid var(--pu)}
+    .srow{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:.5px solid var(--bd)}
+    .srow:last-child{border-bottom:none}
+    .slbl2{font-size:15px;color:var(--tx)}.ssub{font-size:12px;color:var(--tx2);margin-top:2px}
+    .nstat{font-size:12px;padding:4px 10px;border-radius:99px;font-weight:500}
+    .nstat.granted{background:var(--gr-l);color:var(--gr)}
+    .nstat.denied{background:var(--co-l);color:var(--co)}
+    .nstat.default{background:var(--am-l);color:var(--am)}
+    .setup{padding:40px 20px;text-align:center}
+    .setup h2{font-size:22px;font-weight:600;margin-bottom:8px}
+    .setup p{font-size:14px;color:var(--tx2);line-height:1.6;margin-bottom:20px}
+    .setup-input{width:100%;padding:12px;border-radius:var(--r);border:.5px solid var(--bd2);background:var(--bg2);color:var(--tx);font-size:15px;margin-bottom:10px;font-family:var(--ff)}
+    .hint{font-size:12px;color:var(--tx3);margin-top:8px;line-height:1.5}
+    .empty{text-align:center;padding:32px 16px;color:var(--tx3);font-size:14px}
   </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <div class="header-row">
-      <div>
-        <h1>MG Planner</h1>
-        <div class="header-sub" id="today-label">Loading…</div>
-      </div>
-      <div class="sync-badge syncing" id="sync-badge">
-        <div class="sync-dot"></div>
-        <span id="sync-label">Connecting</span>
+
+  <div class="hdr">
+    <div class="hdr-row">
+      <div><h1>MG Planner</h1><div class="hdr-sub" id="today-lbl"></div></div>
+      <div class="sync off" id="sync-badge" onclick="goTab('settings',document.querySelectorAll('.tab')[4])">
+        <div class="sync-dot"></div><span id="sync-txt">Offline</span>
       </div>
     </div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('today')">Today</button>
-    <button class="tab" onclick="switchTab('schedule')">Schedule</button>
-    <button class="tab" onclick="switchTab('growth')">Growth</button>
-    <button class="tab" onclick="switchTab('log')">Log</button>
+    <button class="tab on" onclick="goTab('today',this)">Today</button>
+    <button class="tab" onclick="goTab('schedule',this)">Schedule</button>
+    <button class="tab" onclick="goTab('growth',this)">Growth</button>
+    <button class="tab" onclick="goTab('log',this)">Log</button>
+    <button class="tab" onclick="goTab('settings',this)">Settings</button>
   </div>
 
-  <!-- TODAY TAB -->
-  <div class="page active" id="tab-today">
-    <div id="setup-screen" class="setup-screen" style="display:none;">
-      <h2>Welcome</h2>
-      <p>Enter a username to sync your planner across devices. Use the same name on your phone and PC.</p>
-      <input class="setup-input" id="username-input" type="text" placeholder="e.g. yourname" maxlength="30" />
-      <button class="btn-primary" onclick="saveUser()">Get started</button>
-      <p class="hint">No password needed — just remember your username. Keep it unique.</p>
+  <!-- TODAY -->
+  <div class="pg on" id="pg-today">
+    <div class="setup" id="setup-screen" style="display:none">
+      <h2>Welcome 👋</h2>
+      <p>Pick a username to sync your planner across all your devices. Use the <strong>same name</strong> on your phone and PC.</p>
+      <input class="setup-input" id="uname-input" type="text" placeholder="e.g. painsiy" maxlength="30"/>
+      <button class="btnp" onclick="saveUser()">Get started</button>
+      <p class="hint">No password needed — just remember your username.</p>
     </div>
     <div id="intake-form">
-      <div class="section-label">Remote work</div>
+      <div id="restored-notice" style="display:none;margin-bottom:12px;font-size:13px;color:var(--tx2)">✓ Today's inputs restored from sync</div>
+
+      <div class="slbl">Remote work</div>
       <div class="card">
-        <div class="card-title">Any remote tasks today?</div>
-        <div class="toggle-row" id="q-remote">
-          <button class="toggle-btn active" data-val="no">No tasks</button>
-          <button class="toggle-btn" data-val="yes">Yes</button>
+        <div class="ctitle">Any remote tasks today?</div>
+        <div class="trow" id="q-remote">
+          <button class="tb on" data-v="no">No tasks</button>
+          <button class="tb" data-v="yes">Yes</button>
         </div>
-        <div id="remote-detail" style="display:none; margin-top:12px;">
-          <div class="input-row">
-            <div class="input-group"><label>Hours (2–4)</label><input type="number" id="remote-hrs" value="2" min="2" max="4" /></div>
+        <div id="remote-x" style="display:none;margin-top:10px">
+          <div class="irow"><div><div class="ilbl">Hours (2–4)</div><input type="number" id="remote-hrs" value="2" min="2" max="4"></div></div>
+        </div>
+      </div>
+
+      <div class="slbl">Freelance</div>
+      <div class="card">
+        <div class="ctitle">Any freelance tasks today?</div>
+        <div class="trow" id="q-freelance">
+          <button class="tb" data-v="no">No tasks</button>
+          <button class="tb on" data-v="yes">Yes</button>
+        </div>
+        <div id="freelance-x" style="margin-top:10px">
+          <div class="irow">
+            <div><div class="ilbl">Number of tasks</div><input type="number" id="fl-tasks" value="1" min="1" max="5"></div>
+            <div><div class="ilbl">Hours per task</div><input type="number" id="fl-hrs" value="2" min="2" max="4"></div>
           </div>
         </div>
       </div>
 
-      <div class="section-label">Freelance</div>
+      <div class="slbl">Gym</div>
       <div class="card">
-        <div class="card-title">Any freelance tasks today?</div>
-        <div class="toggle-row" id="q-freelance">
-          <button class="toggle-btn" data-val="no">No tasks</button>
-          <button class="toggle-btn active" data-val="yes">Yes</button>
-        </div>
-        <div id="freelance-detail" style="margin-top:12px;">
-          <div class="input-row">
-            <div class="input-group"><label>Number of tasks</label><input type="number" id="freelance-tasks" value="1" min="1" max="5" /></div>
-            <div class="input-group"><label>Hours per task</label><input type="number" id="freelance-hrs" value="2" min="2" max="4" /></div>
-          </div>
+        <div class="ctitle">When are you training today?</div>
+        <div class="csub" id="gym-hint" style="margin-bottom:6px"></div>
+        <div class="trow" id="q-gym">
+          <button class="tb on" data-v="morning">Morning</button>
+          <button class="tb" data-v="evening">Evening</button>
+          <button class="tb" data-v="skip">Rest day</button>
         </div>
       </div>
 
-      <div class="section-label">Gym</div>
+      <div class="slbl">Motion graphics focus</div>
       <div class="card">
-        <div class="card-title">When are you training?</div>
-        <div class="toggle-row" id="q-gym">
-          <button class="toggle-btn active" data-val="morning">Morning</button>
-          <button class="toggle-btn" data-val="evening">Evening</button>
-          <button class="toggle-btn" data-val="skip">Rest day</button>
+        <div class="ctitle">What are you working on today?</div>
+        <div class="csub">Pick one or two</div>
+        <div class="trow" id="q-focus">
+          <button class="tb" data-v="principles">Animation principles</button>
+          <button class="tb on" data-v="ae">After Effects</button>
+          <button class="tb" data-v="design">Design fundamentals</button>
+          <button class="tb" data-v="cinema4d">Cinema 4D</button>
+          <button class="tb" data-v="portfolio">Portfolio piece</button>
+          <button class="tb" data-v="tutorials">Tutorial study</button>
         </div>
       </div>
 
-      <div class="section-label">Motion graphics focus</div>
+      <div class="slbl">Energy</div>
       <div class="card">
-        <div class="card-title">What are you working on today?</div>
-        <div class="card-sub">Pick one or two</div>
-        <div class="toggle-row" id="q-focus">
-          <button class="toggle-btn" data-val="principles">Animation principles</button>
-          <button class="toggle-btn active" data-val="ae">After Effects</button>
-          <button class="toggle-btn" data-val="design">Design fundamentals</button>
-          <button class="toggle-btn" data-val="cinema4d">Cinema 4D</button>
-          <button class="toggle-btn" data-val="portfolio">Portfolio piece</button>
-          <button class="toggle-btn" data-val="tutorials">Tutorial study</button>
+        <div class="ctitle">How are you feeling today?</div>
+        <div class="trow" id="q-energy">
+          <button class="tb" data-v="low">Low — ease in</button>
+          <button class="tb on" data-v="medium">Medium</button>
+          <button class="tb" data-v="high">High — push hard</button>
         </div>
       </div>
-
-      <div class="section-label">Energy</div>
-      <div class="card">
-        <div class="card-title">How are you feeling today?</div>
-        <div class="toggle-row" id="q-energy">
-          <button class="toggle-btn" data-val="low">Low — ease in</button>
-          <button class="toggle-btn active" data-val="medium">Medium</button>
-          <button class="toggle-btn" data-val="high">High — push hard</button>
-        </div>
-      </div>
-
-      <button class="btn-primary" onclick="generateSchedule()">Build my day →</button>
+      <button class="btnp" onclick="buildDay()">Build my day →</button>
     </div>
   </div>
 
-  <!-- SCHEDULE TAB -->
-  <div class="page" id="tab-schedule">
-    <div id="schedule-empty" class="empty-state">Fill in today's intake first,<br>then your schedule will appear here.</div>
-    <div id="schedule-content" style="display:none;">
-      <div class="summary-grid" id="summary-grid"></div>
-      <div id="blocks-container"></div>
-      <button class="btn-secondary" onclick="resetForm()">← Adjust today's inputs</button>
+  <!-- SCHEDULE -->
+  <div class="pg" id="pg-schedule">
+    <div class="empty" id="sch-empty">Fill in today's inputs first,<br>then your schedule appears here.</div>
+    <div id="sch-content" style="display:none">
+      <div class="sgrid" id="sgrid"></div>
+      <div id="blocks"></div>
+      <button class="btns" onclick="resetDay()">← Adjust today</button>
     </div>
   </div>
 
-  <!-- GROWTH TAB -->
-  <div class="page" id="tab-growth">
-    <div class="section-label">Your 5-month roadmap</div>
-    <div id="streak-section" style="margin-bottom:16px;">
-      <div class="card">
-        <div class="card-title">Study streak</div>
-        <div class="card-sub" id="streak-label">— days in a row</div>
-        <div class="streak-bar" id="streak-bar"></div>
-      </div>
+  <!-- GROWTH -->
+  <div class="pg" id="pg-growth">
+    <div class="slbl">Study streak — last 21 days</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ctitle" id="streak-lbl">0 days in a row</div>
+      <div style="margin-top:8px" id="streak-dots"></div>
     </div>
-    <div class="growth-card b-purple">
-      <div class="growth-month" style="color:var(--purple-800);">Month 1 — Foundation</div>
-      <div class="growth-text">Master the 12 animation principles. Apply each one daily in After Effects. Build one looping animation per week minimum. Follow The Illusion of Life principles.</div>
-      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-1" style="width:0%"></div></div>
-    </div>
-    <div class="growth-card b-blue">
-      <div class="growth-month" style="color:var(--blue-600);">Month 2 — Type in motion</div>
-      <div class="growth-text">Kinetic typography is the fastest portfolio win. Study Alex Trochut, Buck, Ordinary Folk. Recreate 1 industry piece per week. Master expressions for text animation.</div>
-      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-2" style="width:0%"></div></div>
-    </div>
-    <div class="growth-card b-teal">
-      <div class="growth-month" style="color:var(--teal-600);">Month 3 — Intro to 3D</div>
-      <div class="growth-text">Start Cinema 4D. One MoGraph technique a week — cloners, effectors, dynamics. Integrate 3D into your AE workflow. Study Maxon tutorials and Greyscale Gorilla.</div>
-      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-3" style="width:0%"></div></div>
-    </div>
-    <div class="growth-card b-coral">
-      <div class="growth-month" style="color:var(--coral-600);">Month 4 — Portfolio reel</div>
-      <div class="growth-text">Build 3–5 strong pieces. Write case studies for each on Behance. Tailor your reel to studios you want to work with. Quality over quantity — 60 seconds max.</div>
-      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-4" style="width:0%"></div></div>
-    </div>
-    <div class="growth-card b-amber">
-      <div class="growth-month" style="color:var(--amber-600);">Month 5 — Land the job</div>
-      <div class="growth-text">Cold email 5 studios per week with personalised notes. Apply to School of Motion job board. Post WIP weekly on Instagram/LinkedIn. Network in MoGraph Slack communities.</div>
-      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-5" style="width:0%"></div></div>
-    </div>
+    <div class="slbl">5-month roadmap</div>
+    <div class="growcard b-pu"><div class="gmonth" style="color:var(--pu-d)">Month 1 — Foundation</div><div class="gtext">Master the 12 animation principles. Apply each one daily in After Effects. Build one looping animation per week minimum.</div><div class="pbar"><div class="pbfill" id="p1" style="width:0%"></div></div></div>
+    <div class="growcard b-bl"><div class="gmonth" style="color:var(--bl)">Month 2 — Type in motion</div><div class="gtext">Kinetic typography is the fastest portfolio win. Recreate 1 industry piece per week. Master AE text expressions and presets.</div><div class="pbar"><div class="pbfill" id="p2" style="width:0%"></div></div></div>
+    <div class="growcard b-te"><div class="gmonth" style="color:var(--te)">Month 3 — Intro to 3D</div><div class="gtext">Start Cinema 4D. One MoGraph technique a week — cloners, effectors, dynamics. Integrate 3D into your AE workflow.</div><div class="pbar"><div class="pbfill" id="p3" style="width:0%"></div></div></div>
+    <div class="growcard b-co"><div class="gmonth" style="color:var(--co)">Month 4 — Portfolio reel</div><div class="gtext">Build 3–5 strong pieces. Write case studies on Behance. Tailor your reel to studios you want to work with. 60 seconds max.</div><div class="pbar"><div class="pbfill" id="p4" style="width:0%"></div></div></div>
+    <div class="growcard b-am"><div class="gmonth" style="color:var(--am)">Month 5 — Land the job</div><div class="gtext">Cold email 5 studios per week. Post WIP weekly on Instagram and LinkedIn. Network in MoGraph Slack and Discord communities.</div><div class="pbar"><div class="pbfill" id="p5" style="width:0%"></div></div></div>
+    <div class="slbl">Daily non-negotiables</div>
+    <div class="card"><div class="csub" style="line-height:1.9">Watch 1 motion reel or breakdown (20 min)<br>Complete your planned MG study block<br>Sketch or plan 1 animation concept<br>Log your session before bed<br>Study: Motion Hatch · School of Motion · Buck · Gunner</div></div>
+  </div>
 
-    <div class="section-label" style="margin-top:20px;">Daily non-negotiables</div>
+  <!-- LOG -->
+  <div class="pg" id="pg-log">
+    <div class="slbl">Past sessions</div>
+    <div id="log-container"><div class="empty">No sessions yet.<br>Complete a day to start your log.</div></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="pg" id="pg-settings">
+    <div class="slbl">Account</div>
     <div class="card">
-      <div class="card-sub" style="line-height:1.8;">
-        📺 Watch 1 motion reel or breakdown (20 min)<br>
-        ✏️ Sketch 1 animation concept (even rough)<br>
-        🎯 Complete your planned MG study block<br>
-        📝 Log what you made before bed<br>
-        👀 Study: Motion Hatch · School of Motion · Gunner · Buck
+      <div class="srow"><div><div class="slbl2">Username</div><div class="ssub" id="s-uname">Not set</div></div><button class="btns" style="width:auto;margin:0;padding:6px 14px;font-size:12px" onclick="changeUser()">Change</button></div>
+      <div class="srow"><div><div class="slbl2">Sync status</div><div class="ssub" id="s-sync-txt">—</div></div></div>
+    </div>
+
+    <div class="slbl">Gym preference</div>
+    <div class="card">
+      <div class="srow">
+        <div><div class="slbl2">Default gym time</div><div class="ssub">Pre-selected on the Today tab daily</div></div>
+        <div class="trow" id="s-gym-pref" style="margin:0;gap:5px">
+          <button class="tb on" data-v="morning">Morning</button>
+          <button class="tb" data-v="evening">Evening</button>
+        </div>
       </div>
+      <div class="srow">
+        <div><div class="slbl2">Usual gym start time</div><div class="ssub">Schedules your blocks from this time</div></div>
+        <input type="time" id="s-gym-time" value="07:00" style="width:110px">
+      </div>
+    </div>
+
+    <div class="slbl">Notifications</div>
+    <div class="card">
+      <div class="srow"><div><div class="slbl2">Push notifications</div><div class="ssub">Reminders for gym, MG study, and eating window</div></div><span class="nstat default" id="notif-badge">Not enabled</span></div>
+      <div class="srow"><div><div class="slbl2">Morning reminder</div><div class="ssub">Daily prompt to fill in your day</div></div><input type="time" id="s-notif-am" value="07:00" style="width:100px"></div>
+      <div class="srow"><div><div class="slbl2">MG study reminder</div><div class="ssub">Fires when your study block starts</div></div><input type="time" id="s-notif-mg" value="09:00" style="width:100px"></div>
+      <div class="srow">
+        <div><div class="slbl2">Eating window alerts</div><div class="ssub">1 pm open + 6:45 pm closing alert</div></div>
+        <div class="trow" id="s-eat-notif" style="margin:0;gap:5px"><button class="tb on" data-v="on">On</button><button class="tb" data-v="off">Off</button></div>
+      </div>
+      <button class="btnp" onclick="enableNotif()">Enable notifications</button>
+    </div>
+
+    <div class="slbl">Firebase sync</div>
+    <div class="card">
+      <div class="srow"><div><div class="slbl2">Status</div><div class="ssub" id="s-fb-status">Not configured — saves locally only</div></div></div>
+      <div style="margin-top:12px">
+        <div class="ilbl">Firebase database URL</div>
+        <input type="text" id="s-fb-url" placeholder="https://your-project-default-rtdb.firebaseio.com" style="margin-top:4px">
+        <div class="ilbl" style="margin-top:10px">Firebase API key</div>
+        <input type="text" id="s-fb-key" placeholder="AIzaSy..." style="margin-top:4px">
+        <button class="btnp" style="margin-top:10px" onclick="saveFBConfig()">Save & connect</button>
+        <p style="font-size:12px;color:var(--tx3);margin-top:8px;line-height:1.5">Find these in Firebase Console → Project Settings → Your apps → Web. See SETUP.md for full instructions.</p>
+      </div>
+    </div>
+
+    <div class="slbl">Data</div>
+    <div class="card">
+      <div class="srow"><div><div class="slbl2">Clear today</div><div class="ssub">Reset today's schedule</div></div><button class="btns" style="width:auto;margin:0;padding:6px 14px;font-size:12px" onclick="clearToday()">Clear</button></div>
     </div>
   </div>
 
-  <!-- LOG TAB -->
-  <div class="page" id="tab-log">
-    <div class="section-label">Past sessions</div>
-    <div id="log-container"><div class="empty-state">No sessions logged yet.<br>Complete a day to start your log.</div></div>
-  </div>
 </div>
 
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-
-  // ── REPLACE WITH YOUR FIREBASE CONFIG ──────────────────────────────────────
-  const firebaseConfig = {
-    apiKey: "AIzaSyA9sFyAinxQykS-4j23n6Uvc5vGEIcjczg",
-    authDomain: "daily-tasker-dc5d3.firebaseapp.com",
-    databaseURL: "https://daily-tasker-dc5d3-default-rtdb.firebaseio.com",
-    projectId: "daily-tasker-dc5d3",
-    storageBucket: "daily-tasker-dc5d3.firebasestorage.app",
-    messagingSenderId: "1098998571831",
-    appId: "1:1098998571831:web:3953e19aaa97afb973b0b2",
-    measurementId: "G-H4F86J4SZZ"
-  };
-  // ───────────────────────────────────────────────────────────────────────────
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  window._db = db;
-  window._ref = ref;
-  window._set = set;
-  window._get = get;
-  window._onValue = onValue;
-  window._firebaseReady = true;
-  window.dispatchEvent(new Event('firebase-ready'));
+  import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+  window._fbMod = { initializeApp, getDatabase, ref, set, get };
+  window.dispatchEvent(new Event('fb-ready'));
 </script>
 
 <script>
+// ── Storage ──────────────────────────────────────────────────────────────────
+const LS = k => { try{ return JSON.parse(localStorage.getItem('mgp_'+k)); }catch{ return null; } };
+const SS = (k,v) => { try{ localStorage.setItem('mgp_'+k, JSON.stringify(v)); }catch{} };
+
+// ── State ────────────────────────────────────────────────────────────────────
+let user = LS('user');
+let fbDB=null, fbRef=null, fbSet=null, fbGet=null;
+let settings = LS('settings') || {gymPref:'morning',gymTime:'07:00',notifAM:'07:00',notifMG:'09:00',eatNotif:'on'};
 const timers = {};
-let currentUser = localStorage.getItem('mg_user') || null;
-let scheduleGenerated = false;
 
-// ── Date helpers ─────────────────────────────────────────────────────────────
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function niceDate() {
-  return new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
-}
-document.getElementById('today-label').textContent = niceDate();
+// ── Date ─────────────────────────────────────────────────────────────────────
+const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+document.getElementById('today-lbl').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
 
-// ── Tab switching ─────────────────────────────────────────────────────────────
-function switchTab(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  event.target.classList.add('active');
-  if (name === 'log') loadLog();
-  if (name === 'growth') loadStreak();
-}
-window.switchTab = switchTab;
-
-// ── Toggle buttons ────────────────────────────────────────────────────────────
-function bindToggle(groupId, multi, onChange) {
-  document.getElementById(groupId).querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (multi) { btn.classList.toggle('active'); }
-      else { document.getElementById(groupId).querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-      if (onChange) onChange(btn.dataset.val);
-    });
-  });
-}
-function getToggle(groupId) {
-  return [...document.getElementById(groupId).querySelectorAll('.toggle-btn.active')].map(b => b.dataset.val);
-}
-
-bindToggle('q-remote', false, val => {
-  document.getElementById('remote-detail').style.display = val === 'yes' ? 'block' : 'none';
-});
-bindToggle('q-freelance', false, val => {
-  document.getElementById('freelance-detail').style.display = val === 'yes' ? 'block' : 'none';
-});
-bindToggle('q-gym', false);
-bindToggle('q-focus', true);
-bindToggle('q-energy', false);
-
-// ── User setup ────────────────────────────────────────────────────────────────
-function initApp() {
-  if (!currentUser) {
-    document.getElementById('intake-form').style.display = 'none';
-    document.getElementById('setup-screen').style.display = 'block';
-  } else {
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('intake-form').style.display = 'block';
-    loadTodayFromCloud();
-  }
-}
-
-window.saveUser = function() {
-  const val = document.getElementById('username-input').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g,'');
-  if (!val) return;
-  currentUser = val;
-  localStorage.setItem('mg_user', val);
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('intake-form').style.display = 'block';
-  loadTodayFromCloud();
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+window.goTab = (name,btn) => {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pg-'+name).classList.add('on');
+  btn.classList.add('on');
+  if(name==='log') renderLog();
+  if(name==='growth') renderGrowth();
+  if(name==='settings') renderSettings();
 };
 
-// ── Firebase sync ─────────────────────────────────────────────────────────────
-function setSyncStatus(state) {
-  const badge = document.getElementById('sync-badge');
-  const label = document.getElementById('sync-label');
-  badge.className = 'sync-badge ' + state;
-  label.textContent = state === 'synced' ? 'Synced' : state === 'syncing' ? 'Syncing' : 'Offline';
+// ── Toggles ──────────────────────────────────────────────────────────────────
+const getToggle = id => [...(document.getElementById(id)?.querySelectorAll('.tb.on')||[])].map(b=>b.dataset.v);
+const setToggle = (id,vals,multi) => document.getElementById(id)?.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on',multi?vals.includes(b.dataset.v):b.dataset.v===vals[0]));
+const bindToggle = (id,multi) => document.getElementById(id)?.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{ if(multi)b.classList.toggle('on'); else{document.getElementById(id).querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));b.classList.add('on');} }));
+
+['q-remote','q-freelance','q-gym','q-focus','q-energy','s-gym-pref','s-eat-notif'].forEach(id=>bindToggle(id,['q-focus'].includes(id)));
+document.getElementById('q-remote').addEventListener('click',e=>{ if(e.target.dataset.v) document.getElementById('remote-x').style.display=e.target.dataset.v==='yes'?'block':'none'; });
+document.getElementById('q-freelance').addEventListener('click',e=>{ if(e.target.dataset.v) document.getElementById('freelance-x').style.display=e.target.dataset.v==='yes'?'block':'none'; });
+['s-gym-pref','s-eat-notif'].forEach(id=>document.getElementById(id).addEventListener('click',()=>setTimeout(saveSettings,50)));
+['s-gym-time','s-notif-am','s-notif-mg'].forEach(id=>document.getElementById(id)?.addEventListener('change',saveSettings));
+
+// ── Firebase ──────────────────────────────────────────────────────────────────
+function setSyncUI(state,txt){
+  const b=document.getElementById('sync-badge'),t=document.getElementById('sync-txt');
+  b.className='sync '+state; t.textContent=txt||{ok:'Synced',ing:'Syncing…',off:'Offline'}[state];
+  const s=document.getElementById('s-sync-txt'); if(s) s.textContent=txt||{ok:'Connected & syncing',ing:'Syncing…',off:'Not connected'}[state];
 }
 
-function dbPath(path) { return `users/${currentUser}/${path}`; }
-
-async function saveToCloud(path, data) {
-  if (!window._firebaseReady || !currentUser) return;
-  setSyncStatus('syncing');
-  try {
-    await window._set(window._ref(window._db, dbPath(path)), data);
-    setSyncStatus('synced');
-  } catch(e) { setSyncStatus('offline'); }
+function initFirebase(){
+  const url=LS('fb_url'), key=LS('fb_key');
+  if(!url||!key||!window._fbMod){ setSyncUI('off'); return; }
+  try{
+    const app=window._fbMod.initializeApp({apiKey:key,databaseURL:url},'mgp'+Date.now());
+    fbDB=window._fbMod.getDatabase(app); fbRef=window._fbMod.ref; fbSet=window._fbMod.set; fbGet=window._fbMod.get;
+    setSyncUI('ok'); document.getElementById('s-fb-status').textContent='Connected ✓';
+  } catch(e){ setSyncUI('off'); console.error(e); }
 }
 
-async function loadFromCloud(path) {
-  if (!window._firebaseReady || !currentUser) return null;
-  try {
-    const snap = await window._get(window._ref(window._db, dbPath(path)));
-    return snap.exists() ? snap.val() : null;
-  } catch(e) { setSyncStatus('offline'); return null; }
-}
+const dbPath = p => fbRef(fbDB,`users/${user}/${p}`);
+async function cSet(path,data){ if(!fbDB||!user)return; setSyncUI('ing'); try{await fbSet(dbPath(path),data);setSyncUI('ok');}catch{setSyncUI('off');} }
+async function cGet(path){ if(!fbDB||!user)return null; try{const s=await fbGet(dbPath(path));return s.exists()?s.val():null;}catch{return null;} }
 
-async function loadTodayFromCloud() {
-  const data = await loadFromCloud(`days/${todayKey()}`);
-  if (data && data.generated) {
-    restoreState(data);
-  }
+// ── User ─────────────────────────────────────────────────────────────────────
+function initApp(){
+  if(!user){ document.getElementById('setup-screen').style.display='block'; document.getElementById('intake-form').style.display='none'; }
+  else { document.getElementById('setup-screen').style.display='none'; document.getElementById('intake-form').style.display='block'; applyDefaults(); loadToday(); }
 }
-
-function restoreState(data) {
-  setToggleVal('q-remote', data.remote, false);
-  document.getElementById('remote-detail').style.display = data.remote === 'yes' ? 'block' : 'none';
-  document.getElementById('remote-hrs').value = data.remoteHrs || 2;
-  setToggleVal('q-freelance', data.freelance, false);
-  document.getElementById('freelance-detail').style.display = data.freelance === 'yes' ? 'block' : 'none';
-  document.getElementById('freelance-tasks').value = data.freelanceTasks || 1;
-  document.getElementById('freelance-hrs').value = data.freelanceHrs || 2;
-  setToggleVal('q-gym', data.gym, false);
-  data.focus.forEach(f => setToggleVal('q-focus', f, true));
-  setToggleVal('q-energy', data.energy, false);
-  if (data.generated) generateSchedule(true);
-}
-
-function setToggleVal(groupId, val, add) {
-  document.getElementById(groupId).querySelectorAll('.toggle-btn').forEach(btn => {
-    if (add) { if (btn.dataset.val === val) btn.classList.add('active'); }
-    else { btn.classList.toggle('active', btn.dataset.val === val); }
-  });
-}
-
-// ── Schedule generation ───────────────────────────────────────────────────────
-function fmtTime(h, m) {
-  const s = h >= 12 ? 'pm' : 'am'; const hh = h > 12 ? h - 12 : (h===0 ? 12 : h);
-  return `${hh}:${String(m).padStart(2,'0')} ${s}`;
-}
-function addMins(h, m, mins) { const t = h*60+m+mins; return [Math.floor(t/60)%24, t%60]; }
-function fmtSecs(s) { return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
-
-function makeTimer(id, durMins, color, title, sub) {
-  const secs = durMins * 60;
-  timers[id] = { total: secs, remaining: secs, running: false, interval: null };
-  return `<div class="block-body ${color}" id="block-${id}">
-    <div class="block-title">${title}</div>
-    <div class="block-sub">${sub}</div>
-    <div class="timer-row">
-      <span class="timer-display" id="td-${id}">${fmtSecs(secs)}</span>
-      <div class="timer-controls">
-        <button class="t-btn" onclick="startTimer('${id}')">▶</button>
-        <button class="t-btn" onclick="pauseTimer('${id}')">⏸</button>
-        <button class="t-btn" onclick="resetTimer('${id}')">↺</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-window.startTimer = function(id) {
-  const t = timers[id]; if (!t || t.running || t.remaining <= 0) return;
-  t.running = true;
-  t.interval = setInterval(() => {
-    t.remaining--;
-    const el = document.getElementById('td-'+id);
-    if (el) el.textContent = t.remaining > 0 ? fmtSecs(t.remaining) : 'Done!';
-    if (t.remaining <= 0) { clearInterval(t.interval); t.running = false; }
-  }, 1000);
+window.saveUser = () => {
+  const v=document.getElementById('uname-input').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g,'');
+  if(!v)return; user=v; SS('user',v);
+  document.getElementById('setup-screen').style.display='none'; document.getElementById('intake-form').style.display='block';
+  applyDefaults(); loadToday();
 };
-window.pauseTimer = function(id) { const t = timers[id]; if(!t) return; clearInterval(t.interval); t.running=false; };
-window.resetTimer = function(id) {
-  const t = timers[id]; if(!t) return; clearInterval(t.interval); t.running=false; t.remaining=t.total;
-  const el = document.getElementById('td-'+id); if(el) el.textContent = fmtSecs(t.total);
-};
+window.changeUser = () => { const n=prompt('Enter username:',''); if(!n)return; user=n.trim().toLowerCase().replace(/[^a-z0-9_-]/g,''); SS('user',user); renderSettings(); loadToday(); };
 
-window.generateSchedule = async function(silent) {
-  Object.values(timers).forEach(t => { if(t.interval) clearInterval(t.interval); });
+function applyDefaults(){
+  setToggle('q-gym',[settings.gymPref||'morning'],false);
+  const h=document.getElementById('gym-hint');
+  if(h) h.textContent=`Default: ${settings.gymPref||'morning'} at ${settings.gymTime||'07:00'} — change if today is different`;
+}
 
-  const remote = getToggle('q-remote')[0];
-  const remoteHrs = parseInt(document.getElementById('remote-hrs').value)||2;
-  const freelance = getToggle('q-freelance')[0];
-  const freelanceTasks = parseInt(document.getElementById('freelance-tasks').value)||1;
-  const freelanceHrs = parseInt(document.getElementById('freelance-hrs').value)||2;
-  const gym = getToggle('q-gym')[0];
-  const focus = getToggle('q-focus');
-  const energy = getToggle('q-energy')[0];
+async function loadToday(){
+  const local=LS('today');
+  if(local&&local.date===todayKey()){ restoreDay(local); return; }
+  const cloud=await cGet(`days/${todayKey()}`);
+  if(cloud&&cloud.date===todayKey()) restoreDay(cloud);
+}
 
-  const focusMap = { principles:'Animation principles', ae:'After Effects', design:'Design fundamentals', cinema4d:'Cinema 4D', portfolio:'Portfolio piece', tutorials:'Tutorial study' };
-  const mgTask = focus.length > 0 ? focus.map(f=>focusMap[f]).join(' + ') : 'MG study';
-  const mgMins = energy==='high' ? 120 : energy==='low' ? 60 : 90;
+function restoreDay(d){
+  setToggle('q-remote',[d.remote],false); document.getElementById('remote-x').style.display=d.remote==='yes'?'block':'none'; document.getElementById('remote-hrs').value=d.rHrs||2;
+  setToggle('q-freelance',[d.fl],false); document.getElementById('freelance-x').style.display=d.fl==='yes'?'block':'none'; document.getElementById('fl-tasks').value=d.flT||1; document.getElementById('fl-hrs').value=d.flH||2;
+  setToggle('q-gym',[d.gym],false); if(d.focus)setToggle('q-focus',d.focus,true); setToggle('q-energy',[d.energy],false);
+  document.getElementById('restored-notice').style.display='block';
+}
 
-  let blocks=[], h=6, m=0;
+// ── Schedule ──────────────────────────────────────────────────────────────────
+const fmt=(h,m)=>{ const s=h>=12?'pm':'am',hh=h>12?h-12:(h===0?12:h); return `${hh}:${String(m).padStart(2,'0')} ${s}`; };
+const addM=(h,m,mins)=>{ const t=h*60+m+mins; return [Math.floor(t/60)%24,t%60]; };
+const fmtS=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 
-  if (gym==='morning') {
-    blocks.push({time:[h,m], dur:90, color:'b-teal', title:'Gym', sub:'Morning workout session', cat:'gym'});
-    [h,m]=addMins(h,m,90);
-    blocks.push({time:[h,m], dur:30, color:'b-gray', title:'Shower & recovery', sub:'Wind down, prep for work', cat:'rest'});
-    [h,m]=addMins(h,m,30);
-  }
+function mkTimer(id,mins,col,title,sub){
+  const secs=mins*60; timers[id]={total:secs,rem:secs,run:false,iv:null};
+  return `<div class="bb ${col}"><div class="btitle">${title}</div><div class="bsub">${sub}</div><div class="tctrls"><span class="tdisp" id="td-${id}">${fmtS(secs)}</span><button class="tcbtn" onclick="ts('${id}')">▶ Start</button><button class="tcbtn" onclick="tp('${id}')">Pause</button><button class="tcbtn" onclick="tr2('${id}')">Reset</button></div></div>`;
+}
+window.ts=id=>{ const t=timers[id]; if(!t||t.run||t.rem<=0)return; t.run=true; t.iv=setInterval(()=>{ t.rem--; const el=document.getElementById('td-'+id); if(el)el.textContent=t.rem>0?fmtS(t.rem):'Done ✓'; if(t.rem<=0){clearInterval(t.iv);t.run=false;} },1000); };
+window.tp=id=>{ const t=timers[id];if(!t)return;clearInterval(t.iv);t.run=false; };
+window.tr2=id=>{ const t=timers[id];if(!t)return;clearInterval(t.iv);t.run=false;t.rem=t.total;const el=document.getElementById('td-'+id);if(el)el.textContent=fmtS(t.total); };
 
-  blocks.push({time:[h,m], dur:30, color:'b-gray', title:'Morning startup', sub:'Review day, hydrate, set intentions', cat:'admin'});
-  [h,m]=addMins(h,m,30);
+window.buildDay = async function(){
+  Object.values(timers).forEach(t=>{if(t.iv)clearInterval(t.iv);});
+  const remote=getToggle('q-remote')[0], rHrs=parseInt(document.getElementById('remote-hrs').value)||2;
+  const fl=getToggle('q-freelance')[0], flT=parseInt(document.getElementById('fl-tasks').value)||1, flH=parseInt(document.getElementById('fl-hrs').value)||2;
+  const gym=getToggle('q-gym')[0], focus=getToggle('q-focus'), energy=getToggle('q-energy')[0];
+  const [gymH,gymM]=(settings.gymTime||'07:00').split(':').map(Number);
+  const fmap={principles:'Animation principles',ae:'After Effects',design:'Design fundamentals',cinema4d:'Cinema 4D',portfolio:'Portfolio piece',tutorials:'Tutorial study'};
+  const mgTask=focus.length?focus.map(f=>fmap[f]).join(' + '):'MG study';
+  const mgMins=energy==='high'?120:energy==='low'?60:90;
 
-  if (energy !== 'low') {
-    blocks.push({time:[h,m], dur:mgMins, color:'b-purple', title:`MG study — ${mgTask}`, sub:`Deep focus · ${mgMins} min`, cat:'mg'});
-    [h,m]=addMins(h,m,mgMins);
-    blocks.push({time:[h,m], dur:15, color:'b-gray', title:'Break', sub:'Stretch, water', cat:'rest'});
-    [h,m]=addMins(h,m,15);
-  }
+  const dayData={remote,rHrs,fl,flT,flH,gym,focus,energy,mgMins,date:todayKey(),ts:Date.now()};
+  SS('today',dayData); const logs=LS('logs')||{}; logs[todayKey()]=dayData; SS('logs',logs);
+  const streak=LS('streak')||{}; streak[todayKey()]=true; SS('streak',streak);
+  cSet(`days/${todayKey()}`,dayData); cSet(`streak/${todayKey()}`,true);
 
-  if (remote==='yes') {
-    blocks.push({time:[h,m], dur:remoteHrs*60, color:'b-blue', title:'Remote work', sub:`${remoteHrs}h client tasks`, cat:'remote'});
-    [h,m]=addMins(h,m,remoteHrs*60);
-    blocks.push({time:[h,m], dur:15, color:'b-gray', title:'Break', sub:'Step away from screen', cat:'rest'});
-    [h,m]=addMins(h,m,15);
-  }
+  let blocks=[],h,m;
+  if(gym==='morning'){ h=gymH;m=gymM; blocks.push({t:[h,m],d:90,c:'b-te',ti:'Gym',s:`Morning workout · ${fmt(h,m)}`,cat:'gym'}); [h,m]=addM(h,m,90); blocks.push({t:[h,m],d:30,c:'b-gy',ti:'Shower & recovery',s:'Hydrate, wind down',cat:'rest'}); [h,m]=addM(h,m,30); }
+  else{ h=6;m=0; }
+  blocks.push({t:[h,m],d:30,c:'b-gy',ti:'Morning startup',s:'Review day, set intentions',cat:'admin'}); [h,m]=addM(h,m,30);
+  if(energy!=='low'){ blocks.push({t:[h,m],d:mgMins,c:'b-pu',ti:'MG study — '+mgTask,s:'Deep focus · '+mgMins+' min',cat:'mg'}); [h,m]=addM(h,m,mgMins); blocks.push({t:[h,m],d:15,c:'b-gy',ti:'Break',s:'Stretch, water',cat:'rest'}); [h,m]=addM(h,m,15); }
+  if(remote==='yes'){ blocks.push({t:[h,m],d:rHrs*60,c:'b-bl',ti:'Remote work',s:`${rHrs}h client tasks`,cat:'remote'}); [h,m]=addM(h,m,rHrs*60); blocks.push({t:[h,m],d:15,c:'b-gy',ti:'Break',s:'Step away',cat:'rest'}); [h,m]=addM(h,m,15); }
+  const es=13*60,cm=h*60+m;
+  if(cm<es){ if(energy==='low'){ blocks.push({t:[h,m],d:mgMins,c:'b-pu',ti:'MG study — '+mgTask,s:'Gentle session · '+mgMins+' min',cat:'mg'}); [h,m]=addM(h,m,mgMins); } if(h*60+m<es){ blocks.push({t:[h,m],d:es-(h*60+m),c:'b-gy',ti:'Wind down / prep',s:'Wrap up, get ready for lunch',cat:'rest'}); [h,m]=[13,0]; } }
+  blocks.push({t:[13,0],d:60,c:'b-am',ti:'Lunch (eating window opens 1 pm)',s:'Eat, rest, light inspiration',cat:'food'}); [h,m]=[14,0];
+  if(fl==='yes'){ for(let i=0;i<flT;i++){ const lb=flT>1?` (${i+1}/${flT})`:''; blocks.push({t:[h,m],d:flH*60,c:'b-co',ti:'Freelance work'+lb,s:`${flH}h delivery block`,cat:'freelance'}); [h,m]=addM(h,m,flH*60); if(i<flT-1){blocks.push({t:[h,m],d:20,c:'b-gy',ti:'Break',s:'Reset between tasks',cat:'rest'});[h,m]=addM(h,m,20);} } }
+  const ee=19*60,cm2=h*60+m; if(cm2<ee-30){ const av=Math.min(ee-cm2-30,mgMins); if(av>=30){ blocks.push({t:[h,m],d:av,c:'b-pu',ti:'MG project / portfolio',s:'Apply skills, build reel assets',cat:'mg'}); [h,m]=addM(h,m,av); } }
+  blocks.push({t:[h,m],d:Math.max(ee-(h*60+m),30),c:'b-am',ti:'Dinner (eating window closes 7 pm)',s:'Last meal before 7 pm',cat:'food'}); h=19;m=0;
+  if(gym==='evening'){ blocks.push({t:[19,0],d:90,c:'b-te',ti:'Gym',s:'Evening workout',cat:'gym'}); [h,m]=[20,30]; blocks.push({t:[h,m],d:30,c:'b-gy',ti:'Shower & wind down',s:'Recovery',cat:'rest'}); [h,m]=addM(h,m,30); }
+  blocks.push({t:[h,m],d:60,c:'b-gr',ti:'MG inspiration & research',s:'Watch reels, Behance, study breakdowns',cat:'mg'}); [h,m]=addM(h,m,60);
+  blocks.push({t:[h,m],d:30,c:'b-gy',ti:'Day review & plan tomorrow',s:"Log session, set tomorrow's focus",cat:'admin'}); [h,m]=addM(h,m,30);
+  blocks.push({t:[h,m],d:60,c:'b-gy',ti:'Wind down',s:'No screens, stretch, sleep prep',cat:'rest'});
 
-  const eatStart=13*60, curMin=h*60+m;
-  if (curMin < eatStart) {
-    if (energy==='low') {
-      blocks.push({time:[h,m], dur:mgMins, color:'b-purple', title:`MG study — ${mgTask}`, sub:`Gentle session · ${mgMins} min`, cat:'mg'});
-      [h,m]=addMins(h,m,mgMins);
-    }
-    if (h*60+m < eatStart) {
-      const rem=eatStart-(h*60+m);
-      blocks.push({time:[h,m], dur:rem, color:'b-gray', title:'Wind down / prep', sub:'Wrap up, get ready for lunch', cat:'rest'});
-      [h,m]=[13,0];
-    }
-  }
-
-  blocks.push({time:[13,0], dur:60, color:'b-amber', title:'Lunch (eating window opens)', sub:'Eat, rest, light inspiration', cat:'food'});
-  [h,m]=[14,0];
-
-  if (freelance==='yes') {
-    for (let i=0; i<freelanceTasks; i++) {
-      const lbl = freelanceTasks>1 ? ` (${i+1}/${freelanceTasks})` : '';
-      blocks.push({time:[h,m], dur:freelanceHrs*60, color:'b-coral', title:`Freelance work${lbl}`, sub:`${freelanceHrs}h delivery block`, cat:'freelance'});
-      [h,m]=addMins(h,m,freelanceHrs*60);
-      if (i<freelanceTasks-1) { blocks.push({time:[h,m], dur:20, color:'b-gray', title:'Break', sub:'Reset between tasks', cat:'rest'}); [h,m]=addMins(h,m,20); }
-    }
-  }
-
-  const eatEnd=19*60, curMin2=h*60+m;
-  if (curMin2 < eatEnd-30) {
-    const avail=Math.min(eatEnd-curMin2-30, mgMins);
-    if (avail >= 30) {
-      blocks.push({time:[h,m], dur:avail, color:'b-purple', title:'MG project / portfolio', sub:'Apply skills, build reel assets', cat:'mg'});
-      [h,m]=addMins(h,m,avail);
-    }
-  }
-
-  const dinnerDur=Math.max(19*60-(h*60+m),30);
-  blocks.push({time:[h,m], dur:dinnerDur, color:'b-amber', title:'Dinner (eating window closes 7 pm)', sub:'Last meal before 7 pm', cat:'food'});
-  h=19; m=0;
-
-  if (gym==='evening') {
-    blocks.push({time:[19,0], dur:90, color:'b-teal', title:'Gym', sub:'Evening workout', cat:'gym'});
-    [h,m]=[20,30];
-    blocks.push({time:[h,m], dur:30, color:'b-gray', title:'Shower & wind down', sub:'Recovery time', cat:'rest'});
-    [h,m]=addMins(h,m,30);
-  }
-
-  blocks.push({time:[h,m], dur:60, color:'b-green', title:'MG inspiration & research', sub:'Watch reels, Behance, study breakdowns', cat:'mg'});
-  [h,m]=addMins(h,m,60);
-  blocks.push({time:[h,m], dur:30, color:'b-gray', title:'Day review & plan tomorrow', sub:'Log session, set tomorrow\'s focus', cat:'admin'});
-  [h,m]=addMins(h,m,30);
-  blocks.push({time:[h,m], dur:60, color:'b-gray', title:'Wind down', sub:'No screens, stretch, sleep prep', cat:'rest'});
-
-  const mgTotal = blocks.filter(b=>b.cat==='mg').reduce((s,b)=>s+b.dur,0);
-  const workTotal = blocks.filter(b=>b.cat==='remote'||b.cat==='freelance').reduce((s,b)=>s+b.dur,0);
-
-  document.getElementById('summary-grid').innerHTML = `
-    <div class="sum-card"><div class="sum-val">${(mgTotal/60).toFixed(1)}h</div><div class="sum-lbl">Motion graphics</div></div>
-    <div class="sum-card"><div class="sum-val">${(workTotal/60).toFixed(1)}h</div><div class="sum-lbl">Client work</div></div>
-    <div class="sum-card"><div class="sum-val">${gym==='skip'?'—':'1.5h'}</div><div class="sum-lbl">Gym</div></div>
-    <div class="sum-card"><div class="sum-val">6h</div><div class="sum-lbl">Eating window</div></div>`;
-
-  let tid=0, html='';
-  blocks.forEach(b => {
-    const timeStr=fmtTime(b.time[0],b.time[1]);
-    const showTimer=['mg','remote','freelance','gym'].includes(b.cat);
-    tid++;
-    const id=`blk${tid}`;
-    html += `<div class="time-block"><div class="time-label">${timeStr}</div>`;
-    if (showTimer) html += makeTimer(id, b.dur, b.color, b.title, b.sub);
-    else html += `<div class="block-body ${b.color}"><div class="block-title">${b.title}</div><div class="block-sub">${b.sub}</div></div>`;
-    html += '</div>';
-  });
-
-  document.getElementById('blocks-container').innerHTML = html;
-  document.getElementById('schedule-empty').style.display='none';
-  document.getElementById('schedule-content').style.display='block';
-  scheduleGenerated = true;
-
-  if (!silent) {
-    const dayData = { remote, remoteHrs, freelance, freelanceTasks, freelanceHrs, gym, focus, energy, generated:true, mgMins:mgTotal, workMins:workTotal, ts: Date.now() };
-    await saveToCloud(`days/${todayKey()}`, dayData);
-    await saveToCloud(`streak/${todayKey()}`, true);
-  }
+  const mgTot=blocks.filter(b=>b.cat==='mg').reduce((s,b)=>s+b.d,0);
+  const wkTot=blocks.filter(b=>b.cat==='remote'||b.cat==='freelance').reduce((s,b)=>s+b.d,0);
+  document.getElementById('sgrid').innerHTML=`<div class="scard"><div class="sval">${(mgTot/60).toFixed(1)}h</div><div class="slb2">Motion graphics</div></div><div class="scard"><div class="sval">${(wkTot/60).toFixed(1)}h</div><div class="slb2">Client work</div></div><div class="scard"><div class="sval">${gym==='skip'?'—':'1.5h'}</div><div class="slb2">Gym</div></div><div class="scard"><div class="sval">6h</div><div class="slb2">Eating window</div></div>`;
+  let tid=0,html='';
+  blocks.forEach(b=>{ tid++; const id='b'+tid; const showT=['mg','remote','freelance','gym'].includes(b.cat); html+=`<div class="tblk"><div class="tlbl">${fmt(b.t[0],b.t[1])}</div>`+(showT?mkTimer(id,b.d,b.c,b.ti,b.s):`<div class="bb ${b.c}"><div class="btitle">${b.ti}</div><div class="bsub">${b.s}</div></div>`)+'</div>'; });
+  document.getElementById('blocks').innerHTML=html;
+  document.getElementById('sch-empty').style.display='none'; document.getElementById('sch-content').style.display='block';
+  scheduleNotifs(gym);
+  goTab('schedule',document.querySelectorAll('.tab')[1]);
 };
 
-window.resetForm = function() {
-  Object.values(timers).forEach(t=>{if(t.interval)clearInterval(t.interval);});
-  scheduleGenerated=false;
-  document.getElementById('schedule-content').style.display='none';
-  document.getElementById('schedule-empty').style.display='block';
-  switchTab('today');
-  document.querySelector('.tab').click();
+window.resetDay = () => { Object.values(timers).forEach(t=>{if(t.iv)clearInterval(t.iv);}); document.getElementById('sch-content').style.display='none'; document.getElementById('sch-empty').style.display='block'; goTab('today',document.querySelectorAll('.tab')[0]); };
+window.clearToday = () => { if(!confirm('Clear today?'))return; SS('today',null); resetDay(); document.getElementById('restored-notice').style.display='none'; };
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+function updateNotifBadge(){
+  const el=document.getElementById('notif-badge'); if(!el)return;
+  if(!('Notification' in window)){el.textContent='Not supported';el.className='nstat denied';return;}
+  const p=Notification.permission; el.className='nstat '+{granted:'granted',denied:'denied',default:'default'}[p];
+  el.textContent={granted:'Enabled ✓',denied:'Blocked',default:'Not enabled'}[p];
+}
+window.enableNotif = async () => {
+  if(!('Notification' in window)){alert('Notifications not supported in this browser.');return;}
+  const p=await Notification.requestPermission(); updateNotifBadge();
+  if(p==='granted') new Notification('MG Planner ✓',{body:'Notifications enabled! You\'ll get daily reminders.',icon:'icons/icon-192.png'});
+  else alert('Blocked — please enable notifications for this site in your browser settings, then try again.');
 };
+
+function scheduleNotifs(gym){
+  if(!('Notification' in window)||Notification.permission!=='granted') return;
+  const now=new Date(), midnight=new Date(now); midnight.setHours(0,0,0,0);
+  const at=(h,m,title,body)=>{ const t=new Date(midnight); t.setHours(h,m,0,0); const ms=t-now; if(ms>0&&ms<86400000) setTimeout(()=>new Notification(title,{body,icon:'icons/icon-192.png'}),ms); };
+  const [amH,amM]=(settings.notifAM||'07:00').split(':').map(Number);
+  const [mgH,mgM]=(settings.notifMG||'09:00').split(':').map(Number);
+  at(amH,amM,'Good morning! 🌅','Time to plan your day in MG Planner.');
+  at(mgH,mgM,'MG Study time 🎨','Your motion graphics block is starting now.');
+  if((settings.eatNotif||'on')==='on'){ at(13,0,'Eating window open 🍱','Window closes at 7 pm.'); at(18,45,'Last call to eat ⏰','Eating window closes in 15 minutes!'); }
+  if(gym==='evening') at(18,0,'Gym time 💪','Your evening workout block is coming up.');
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function saveSettings(){
+  settings.gymPref=getToggle('s-gym-pref')[0]||'morning';
+  settings.gymTime=document.getElementById('s-gym-time').value||'07:00';
+  settings.notifAM=document.getElementById('s-notif-am').value||'07:00';
+  settings.notifMG=document.getElementById('s-notif-mg').value||'09:00';
+  settings.eatNotif=getToggle('s-eat-notif')[0]||'on';
+  SS('settings',settings); cSet('settings',settings);
+  applyDefaults();
+}
+window.saveFBConfig = () => {
+  const url=document.getElementById('s-fb-url').value.trim(), key=document.getElementById('s-fb-key').value.trim();
+  if(!url||!key){alert('Please enter both values.');return;}
+  SS('fb_url',url); SS('fb_key',key); alert('Saved! Reloading to connect Firebase…'); location.reload();
+};
+function renderSettings(){
+  document.getElementById('s-uname').textContent=user||'Not set'; updateNotifBadge();
+  setToggle('s-gym-pref',[settings.gymPref||'morning'],false);
+  setToggle('s-eat-notif',[settings.eatNotif||'on'],false);
+  document.getElementById('s-gym-time').value=settings.gymTime||'07:00';
+  document.getElementById('s-notif-am').value=settings.notifAM||'07:00';
+  document.getElementById('s-notif-mg').value=settings.notifMG||'09:00';
+  const url=LS('fb_url'), key=LS('fb_key');
+  if(url) document.getElementById('s-fb-url').value=url;
+  if(key) document.getElementById('s-fb-key').value=key;
+  setSyncUI(fbDB?'ok':'off');
+}
 
 // ── Log ───────────────────────────────────────────────────────────────────────
-async function loadLog() {
-  if (!currentUser || !window._firebaseReady) return;
-  const data = await loadFromCloud('days');
-  const container = document.getElementById('log-container');
-  if (!data) { container.innerHTML='<div class="empty-state">No sessions logged yet.</div>'; return; }
-  const days = Object.entries(data).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,30);
-  if (!days.length) { container.innerHTML='<div class="empty-state">No sessions logged yet.</div>'; return; }
-  container.innerHTML = days.map(([date, d]) => {
-    const focusStr = d.focus ? d.focus.join(', ') : '—';
-    const mgH = d.mgMins ? (d.mgMins/60).toFixed(1) : '—';
-    const wH = d.workMins ? (d.workMins/60).toFixed(1) : '—';
-    return `<div class="log-entry">
-      <div class="log-date">${date}</div>
-      <div class="log-line">MG focus: <strong>${focusStr}</strong></div>
-      <div class="log-line">Study time: <strong>${mgH}h</strong> · Client work: <strong>${wH}h</strong></div>
-      <div class="log-line">Gym: <strong>${d.gym||'—'}</strong> · Energy: <strong>${d.energy||'—'}</strong></div>
-    </div>`;
-  }).join('');
+function renderLog(){
+  const logs=LS('logs')||{}, days=Object.entries(logs).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,40);
+  const fmap={principles:'Principles',ae:'After Effects',design:'Design',cinema4d:'Cinema 4D',portfolio:'Portfolio',tutorials:'Tutorials'};
+  document.getElementById('log-container').innerHTML=days.length?days.map(([date,d])=>`<div class="loge"><div class="logd">${date}</div><div class="logl">Focus: <b>${d.focus?d.focus.map(f=>fmap[f]||f).join(', '):'—'}</b></div><div class="logl">MG: <b>${d.mgMins?(d.mgMins/60).toFixed(1)+'h':'—'}</b> · Client: <b>${d.fl==='yes'?d.flT*d.flH+'h':'0h'}</b> · Remote: <b>${d.remote==='yes'?d.rHrs+'h':'0h'}</b></div><div class="logl">Gym: <b>${d.gym||'—'}</b> · Energy: <b>${d.energy||'—'}</b></div></div>`).join(''):'<div class="empty">No sessions yet.<br>Complete a day to start your log.</div>';
 }
 
-// ── Streak ────────────────────────────────────────────────────────────────────
-async function loadStreak() {
-  if (!currentUser || !window._firebaseReady) return;
-  const data = await loadFromCloud('streak');
-  const bar = document.getElementById('streak-bar');
-  const label = document.getElementById('streak-label');
-  if (!data) { bar.innerHTML=''; label.textContent='0 days in a row'; return; }
-  const today = todayKey();
-  const days = Object.keys(data).sort();
-  let streak=0, d=new Date();
-  for (let i=0; i<90; i++) {
-    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    if (data[k]) streak++; else if (i>0) break;
-    d.setDate(d.getDate()-1);
-  }
-  label.textContent = `${streak} day${streak!==1?'s':''} in a row`;
-  const last21 = [];
-  const nd = new Date();
-  for (let i=20; i>=0; i--) { const x=new Date(nd); x.setDate(x.getDate()-i); last21.push(`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`); }
-  bar.innerHTML = last21.map(k => `<div class="streak-dot ${k===today?'today':(data[k]?'done':'')}"></div>`).join('');
-
-  const monthsStudied = Math.min(5, Math.floor(days.length / 20));
-  for (let i=1; i<=5; i++) {
-    const prog = document.getElementById('prog-'+i);
-    if (prog) prog.style.width = i <= monthsStudied ? '100%' : (i === monthsStudied+1 ? `${Math.min(100, (days.length % 20) * 5)}%` : '0%');
-  }
+// ── Growth ────────────────────────────────────────────────────────────────────
+function renderGrowth(){
+  const streak=LS('streak')||{}; let s=0; const today=todayKey(); let d=new Date();
+  for(let i=0;i<90;i++){ const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; if(streak[k])s++; else if(i>0)break; d.setDate(d.getDate()-1); }
+  document.getElementById('streak-lbl').textContent=`${s} day${s!==1?'s':''} in a row`;
+  const dots=[],nd=new Date();
+  for(let i=20;i>=0;i--){ const x=new Date(nd); x.setDate(x.getDate()-i); const k=`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; dots.push(`<span class="sdot ${k===today?'today':(streak[k]?'done':'')}" title="${k}"></span>`); }
+  document.getElementById('streak-dots').innerHTML=dots.join('');
+  const total=Object.keys(streak).length;
+  for(let i=1;i<=5;i++){ const pct=total>=i*20?100:total>(i-1)*20?Math.round((total-(i-1)*20)/20*100):0; const el=document.getElementById('p'+i); if(el)el.style.width=pct+'%'; }
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-if (window._firebaseReady) { setSyncStatus('synced'); initApp(); }
-else {
-  window.addEventListener('firebase-ready', () => { setSyncStatus('synced'); initApp(); });
-  setTimeout(() => { if (!window._firebaseReady) { setSyncStatus('offline'); initApp(); } }, 4000);
-}
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
+// ── Boot ──────────────────────────────────────────────────────────────────────
+const boot = () => { initFirebase(); initApp(); };
+if(window._fbMod) boot();
+else { window.addEventListener('fb-ready',boot); setTimeout(()=>{ if(!fbDB){setSyncUI('off');initApp();} },5000); }
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>

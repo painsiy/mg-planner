@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#534AB7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MG Planner" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>MG Daily Planner</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple-50: #EEEDFE; --purple-200: #AFA9EC; --purple-400: #7F77DD;
+      --purple-600: #534AB7; --purple-800: #3C3489; --purple-900: #26215C;
+      --teal-50: #E1F5EE; --teal-400: #1D9E75; --teal-600: #0F6E56;
+      --coral-50: #FAECE7; --coral-400: #D85A30; --coral-600: #993C1D;
+      --amber-50: #FAEEDA; --amber-400: #BA7517; --amber-600: #854F0B;
+      --blue-50: #E6F1FB; --blue-400: #378ADD; --blue-600: #185FA5;
+      --green-50: #EAF3DE; --green-400: #639922; --green-600: #3B6D11;
+      --gray-50: #F1EFE8; --gray-200: #B4B2A9; --gray-600: #5F5E5A;
+      --bg: #ffffff; --bg2: #f5f4f0; --bg3: #eeede8;
+      --text: #1a1a18; --text2: #5f5e5a; --text3: #9a9990;
+      --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+      --radius: 10px; --radius-lg: 14px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --mono: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --purple-50: #26215C; --purple-200: #534AB7; --purple-400: #AFA9EC; --purple-800: #CECBF6;
+        --teal-50: #04342C; --teal-400: #9FE1CB; --teal-600: #5DCAA5;
+        --coral-50: #4A1B0C; --coral-400: #F0997B; --coral-600: #F5C4B3;
+        --amber-50: #412402; --amber-400: #EF9F27; --amber-600: #FAC775;
+        --blue-50: #042C53; --blue-400: #85B7EB; --blue-600: #B5D4F4;
+        --green-50: #173404; --green-400: #97C459; --green-600: #C0DD97;
+        --gray-50: #2c2c2a; --gray-200: #444441; --gray-600: #888780;
+        --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2c;
+        --text: #f0ede8; --text2: #a0a09a; --text3: #6a6a65;
+        --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+      }
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 16px; }
+
+    .app { max-width: 600px; margin: 0 auto; padding: 0 0 80px; min-height: 100vh; }
+
+    /* Header */
+    .header { padding: 52px 20px 16px; background: var(--bg); position: sticky; top: 0; z-index: 10; border-bottom: 0.5px solid var(--border); }
+    .header-row { display: flex; align-items: center; justify-content: space-between; }
+    .header h1 { font-size: 18px; font-weight: 600; color: var(--text); }
+    .header-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+    .sync-badge { font-size: 11px; padding: 4px 10px; border-radius: 99px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+    .sync-badge.synced { background: var(--green-50); color: var(--green-600); }
+    .sync-badge.syncing { background: var(--amber-50); color: var(--amber-600); }
+    .sync-badge.offline { background: var(--gray-50); color: var(--gray-600); }
+    .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border); background: var(--bg); position: sticky; top: 73px; z-index: 9; padding: 0 20px; }
+    .tab { flex: 1; padding: 12px 0; font-size: 13px; font-weight: 500; color: var(--text2); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: all 0.15s; }
+    .tab.active { color: var(--purple-600); border-bottom-color: var(--purple-600); }
+
+    /* Content */
+    .page { display: none; padding: 20px; }
+    .page.active { display: block; }
+
+    /* Cards & sections */
+    .section-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; margin-top: 20px; }
+    .section-label:first-child { margin-top: 0; }
+    .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; }
+    .card-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+    .card-sub { font-size: 13px; color: var(--text2); }
+
+    /* Toggle buttons */
+    .toggle-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .toggle-btn { padding: 7px 14px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; font-size: 13px; cursor: pointer; color: var(--text); transition: all 0.15s; font-family: var(--font); }
+    .toggle-btn.active { background: var(--purple-600); color: #fff; border-color: var(--purple-600); }
+    .toggle-btn:active { transform: scale(0.97); }
+
+    /* Inputs */
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .input-group label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
+    input[type="number"], select { width: 100%; padding: 9px 12px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text); font-size: 14px; font-family: var(--font); appearance: none; }
+    input[type="number"]:focus, select:focus { outline: 2px solid var(--purple-600); outline-offset: 1px; }
+
+    /* Primary button */
+    .btn-primary { width: 100%; padding: 14px; border-radius: var(--radius-lg); background: var(--purple-600); color: #fff; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px; font-family: var(--font); transition: background 0.15s; }
+    .btn-primary:hover { background: var(--purple-800); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-secondary { width: 100%; padding: 12px; border-radius: var(--radius-lg); background: transparent; color: var(--text2); border: 0.5px solid var(--border2); font-size: 14px; cursor: pointer; margin-top: 10px; font-family: var(--font); }
+
+    /* Schedule blocks */
+    .time-block { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+    .time-label { font-size: 11px; color: var(--text3); min-width: 58px; text-align: right; padding-top: 16px; font-weight: 500; font-family: var(--mono); }
+    .block-body { flex: 1; border-radius: var(--radius-lg); padding: 12px 14px; border: 0.5px solid var(--border); }
+    .block-title { font-size: 14px; font-weight: 500; }
+    .block-sub { font-size: 12px; margin-top: 2px; opacity: 0.75; }
+    .timer-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .timer-display { font-size: 22px; font-weight: 600; font-family: var(--mono); min-width: 70px; }
+    .timer-controls { display: flex; gap: 6px; }
+    .t-btn { padding: 5px 12px; border-radius: 99px; border: 0.5px solid var(--border2); background: rgba(255,255,255,0.15); font-size: 12px; cursor: pointer; color: inherit; font-family: var(--font); }
+    .t-btn:active { transform: scale(0.96); }
+    .b-purple { background: var(--purple-50); border-color: var(--purple-200); }
+    .b-purple .block-title { color: var(--purple-800); }
+    .b-teal { background: var(--teal-50); border-color: var(--teal-600); }
+    .b-teal .block-title { color: var(--teal-600); }
+    .b-coral { background: var(--coral-50); border-color: var(--coral-600); }
+    .b-coral .block-title { color: var(--coral-600); }
+    .b-amber { background: var(--amber-50); border-color: var(--amber-600); }
+    .b-amber .block-title { color: var(--amber-600); }
+    .b-blue { background: var(--blue-50); border-color: var(--blue-600); }
+    .b-blue .block-title { color: var(--blue-600); }
+    .b-green { background: var(--green-50); border-color: var(--green-600); }
+    .b-green .block-title { color: var(--green-600); }
+    .b-gray { background: var(--bg2); border-color: var(--border); }
+    .b-gray .block-title { color: var(--text); }
+
+    /* Summary cards */
+    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+    .sum-card { background: var(--bg2); border-radius: var(--radius); padding: 12px; }
+    .sum-val { font-size: 20px; font-weight: 600; }
+    .sum-lbl { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+    /* Growth path */
+    .growth-card { border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 8px; border: 0.5px solid var(--border); }
+    .growth-month { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .growth-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+    .progress-bar-wrap { height: 4px; background: var(--bg3); border-radius: 99px; margin-top: 8px; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--purple-600); border-radius: 99px; transition: width 0.6s ease; }
+
+    /* Log */
+    .log-entry { background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid var(--purple-600); }
+    .log-date { font-size: 12px; color: var(--text3); margin-bottom: 4px; font-family: var(--mono); }
+    .log-line { font-size: 13px; color: var(--text2); margin-top: 2px; }
+    .log-line strong { color: var(--text); font-weight: 500; }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 14px; }
+
+    /* Setup screen */
+    .setup-screen { padding: 40px 24px; text-align: center; }
+    .setup-screen h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+    .setup-screen p { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 24px; }
+    .setup-input { width: 100%; padding: 12px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text); font-size: 15px; margin-bottom: 10px; font-family: var(--font); }
+    .setup-screen .hint { font-size: 12px; color: var(--text3); margin-top: 8px; line-height: 1.5; }
+
+    /* Streak */
+    .streak-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+    .streak-dot { width: 20px; height: 20px; border-radius: 4px; background: var(--bg3); }
+    .streak-dot.done { background: var(--purple-600); }
+    .streak-dot.today { background: var(--purple-400); outline: 2px solid var(--purple-600); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-row">
+      <div>
+        <h1>MG Planner</h1>
+        <div class="header-sub" id="today-label">Loading…</div>
+      </div>
+      <div class="sync-badge syncing" id="sync-badge">
+        <div class="sync-dot"></div>
+        <span id="sync-label">Connecting</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('today')">Today</button>
+    <button class="tab" onclick="switchTab('schedule')">Schedule</button>
+    <button class="tab" onclick="switchTab('growth')">Growth</button>
+    <button class="tab" onclick="switchTab('log')">Log</button>
+  </div>
+
+  <!-- TODAY TAB -->
+  <div class="page active" id="tab-today">
+    <div id="setup-screen" class="setup-screen" style="display:none;">
+      <h2>Welcome</h2>
+      <p>Enter a username to sync your planner across devices. Use the same name on your phone and PC.</p>
+      <input class="setup-input" id="username-input" type="text" placeholder="e.g. yourname" maxlength="30" />
+      <button class="btn-primary" onclick="saveUser()">Get started</button>
+      <p class="hint">No password needed — just remember your username. Keep it unique.</p>
+    </div>
+    <div id="intake-form">
+      <div class="section-label">Remote work</div>
+      <div class="card">
+        <div class="card-title">Any remote tasks today?</div>
+        <div class="toggle-row" id="q-remote">
+          <button class="toggle-btn active" data-val="no">No tasks</button>
+          <button class="toggle-btn" data-val="yes">Yes</button>
+        </div>
+        <div id="remote-detail" style="display:none; margin-top:12px;">
+          <div class="input-row">
+            <div class="input-group"><label>Hours (2–4)</label><input type="number" id="remote-hrs" value="2" min="2" max="4" /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Freelance</div>
+      <div class="card">
+        <div class="card-title">Any freelance tasks today?</div>
+        <div class="toggle-row" id="q-freelance">
+          <button class="toggle-btn" data-val="no">No tasks</button>
+          <button class="toggle-btn active" data-val="yes">Yes</button>
+        </div>
+        <div id="freelance-detail" style="margin-top:12px;">
+          <div class="input-row">
+            <div class="input-group"><label>Number of tasks</label><input type="number" id="freelance-tasks" value="1" min="1" max="5" /></div>
+            <div class="input-group"><label>Hours per task</label><input type="number" id="freelance-hrs" value="2" min="2" max="4" /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Gym</div>
+      <div class="card">
+        <div class="card-title">When are you training?</div>
+        <div class="toggle-row" id="q-gym">
+          <button class="toggle-btn active" data-val="morning">Morning</button>
+          <button class="toggle-btn" data-val="evening">Evening</button>
+          <button class="toggle-btn" data-val="skip">Rest day</button>
+        </div>
+      </div>
+
+      <div class="section-label">Motion graphics focus</div>
+      <div class="card">
+        <div class="card-title">What are you working on today?</div>
+        <div class="card-sub">Pick one or two</div>
+        <div class="toggle-row" id="q-focus">
+          <button class="toggle-btn" data-val="principles">Animation principles</button>
+          <button class="toggle-btn active" data-val="ae">After Effects</button>
+          <button class="toggle-btn" data-val="design">Design fundamentals</button>
+          <button class="toggle-btn" data-val="cinema4d">Cinema 4D</button>
+          <button class="toggle-btn" data-val="portfolio">Portfolio piece</button>
+          <button class="toggle-btn" data-val="tutorials">Tutorial study</button>
+        </div>
+      </div>
+
+      <div class="section-label">Energy</div>
+      <div class="card">
+        <div class="card-title">How are you feeling today?</div>
+        <div class="toggle-row" id="q-energy">
+          <button class="toggle-btn" data-val="low">Low — ease in</button>
+          <button class="toggle-btn active" data-val="medium">Medium</button>
+          <button class="toggle-btn" data-val="high">High — push hard</button>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="generateSchedule()">Build my day →</button>
+    </div>
+  </div>
+
+  <!-- SCHEDULE TAB -->
+  <div class="page" id="tab-schedule">
+    <div id="schedule-empty" class="empty-state">Fill in today's intake first,<br>then your schedule will appear here.</div>
+    <div id="schedule-content" style="display:none;">
+      <div class="summary-grid" id="summary-grid"></div>
+      <div id="blocks-container"></div>
+      <button class="btn-secondary" onclick="resetForm()">← Adjust today's inputs</button>
+    </div>
+  </div>
+
+  <!-- GROWTH TAB -->
+  <div class="page" id="tab-growth">
+    <div class="section-label">Your 5-month roadmap</div>
+    <div id="streak-section" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-title">Study streak</div>
+        <div class="card-sub" id="streak-label">— days in a row</div>
+        <div class="streak-bar" id="streak-bar"></div>
+      </div>
+    </div>
+    <div class="growth-card b-purple">
+      <div class="growth-month" style="color:var(--purple-800);">Month 1 — Foundation</div>
+      <div class="growth-text">Master the 12 animation principles. Apply each one daily in After Effects. Build one looping animation per week minimum. Follow The Illusion of Life principles.</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-1" style="width:0%"></div></div>
+    </div>
+    <div class="growth-card b-blue">
+      <div class="growth-month" style="color:var(--blue-600);">Month 2 — Type in motion</div>
+      <div class="growth-text">Kinetic typography is the fastest portfolio win. Study Alex Trochut, Buck, Ordinary Folk. Recreate 1 industry piece per week. Master expressions for text animation.</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-2" style="width:0%"></div></div>
+    </div>
+    <div class="growth-card b-teal">
+      <div class="growth-month" style="color:var(--teal-600);">Month 3 — Intro to 3D</div>
+      <div class="growth-text">Start Cinema 4D. One MoGraph technique a week — cloners, effectors, dynamics. Integrate 3D into your AE workflow. Study Maxon tutorials and Greyscale Gorilla.</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-3" style="width:0%"></div></div>
+    </div>
+    <div class="growth-card b-coral">
+      <div class="growth-month" style="color:var(--coral-600);">Month 4 — Portfolio reel</div>
+      <div class="growth-text">Build 3–5 strong pieces. Write case studies for each on Behance. Tailor your reel to studios you want to work with. Quality over quantity — 60 seconds max.</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-4" style="width:0%"></div></div>
+    </div>
+    <div class="growth-card b-amber">
+      <div class="growth-month" style="color:var(--amber-600);">Month 5 — Land the job</div>
+      <div class="growth-text">Cold email 5 studios per week with personalised notes. Apply to School of Motion job board. Post WIP weekly on Instagram/LinkedIn. Network in MoGraph Slack communities.</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-5" style="width:0%"></div></div>
+    </div>
+
+    <div class="section-label" style="margin-top:20px;">Daily non-negotiables</div>
+    <div class="card">
+      <div class="card-sub" style="line-height:1.8;">
+        📺 Watch 1 motion reel or breakdown (20 min)<br>
+        ✏️ Sketch 1 animation concept (even rough)<br>
+        🎯 Complete your planned MG study block<br>
+        📝 Log what you made before bed<br>
+        👀 Study: Motion Hatch · School of Motion · Gunner · Buck
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div class="page" id="tab-log">
+    <div class="section-label">Past sessions</div>
+    <div id="log-container"><div class="empty-state">No sessions logged yet.<br>Complete a day to start your log.</div></div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+  // ── REPLACE WITH YOUR FIREBASE CONFIG ──────────────────────────────────────
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  // ───────────────────────────────────────────────────────────────────────────
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  window._db = db;
+  window._ref = ref;
+  window._set = set;
+  window._get = get;
+  window._onValue = onValue;
+  window._firebaseReady = true;
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<script>
+const timers = {};
+let currentUser = localStorage.getItem('mg_user') || null;
+let scheduleGenerated = false;
+
+// ── Date helpers ─────────────────────────────────────────────────────────────
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function niceDate() {
+  return new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+}
+document.getElementById('today-label').textContent = niceDate();
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'log') loadLog();
+  if (name === 'growth') loadStreak();
+}
+window.switchTab = switchTab;
+
+// ── Toggle buttons ────────────────────────────────────────────────────────────
+function bindToggle(groupId, multi, onChange) {
+  document.getElementById(groupId).querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (multi) { btn.classList.toggle('active'); }
+      else { document.getElementById(groupId).querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+      if (onChange) onChange(btn.dataset.val);
+    });
+  });
+}
+function getToggle(groupId) {
+  return [...document.getElementById(groupId).querySelectorAll('.toggle-btn.active')].map(b => b.dataset.val);
+}
+
+bindToggle('q-remote', false, val => {
+  document.getElementById('remote-detail').style.display = val === 'yes' ? 'block' : 'none';
+});
+bindToggle('q-freelance', false, val => {
+  document.getElementById('freelance-detail').style.display = val === 'yes' ? 'block' : 'none';
+});
+bindToggle('q-gym', false);
+bindToggle('q-focus', true);
+bindToggle('q-energy', false);
+
+// ── User setup ────────────────────────────────────────────────────────────────
+function initApp() {
+  if (!currentUser) {
+    document.getElementById('intake-form').style.display = 'none';
+    document.getElementById('setup-screen').style.display = 'block';
+  } else {
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('intake-form').style.display = 'block';
+    loadTodayFromCloud();
+  }
+}
+
+window.saveUser = function() {
+  const val = document.getElementById('username-input').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g,'');
+  if (!val) return;
+  currentUser = val;
+  localStorage.setItem('mg_user', val);
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('intake-form').style.display = 'block';
+  loadTodayFromCloud();
+};
+
+// ── Firebase sync ─────────────────────────────────────────────────────────────
+function setSyncStatus(state) {
+  const badge = document.getElementById('sync-badge');
+  const label = document.getElementById('sync-label');
+  badge.className = 'sync-badge ' + state;
+  label.textContent = state === 'synced' ? 'Synced' : state === 'syncing' ? 'Syncing' : 'Offline';
+}
+
+function dbPath(path) { return `users/${currentUser}/${path}`; }
+
+async function saveToCloud(path, data) {
+  if (!window._firebaseReady || !currentUser) return;
+  setSyncStatus('syncing');
+  try {
+    await window._set(window._ref(window._db, dbPath(path)), data);
+    setSyncStatus('synced');
+  } catch(e) { setSyncStatus('offline'); }
+}
+
+async function loadFromCloud(path) {
+  if (!window._firebaseReady || !currentUser) return null;
+  try {
+    const snap = await window._get(window._ref(window._db, dbPath(path)));
+    return snap.exists() ? snap.val() : null;
+  } catch(e) { setSyncStatus('offline'); return null; }
+}
+
+async function loadTodayFromCloud() {
+  const data = await loadFromCloud(`days/${todayKey()}`);
+  if (data && data.generated) {
+    restoreState(data);
+  }
+}
+
+function restoreState(data) {
+  setToggleVal('q-remote', data.remote, false);
+  document.getElementById('remote-detail').style.display = data.remote === 'yes' ? 'block' : 'none';
+  document.getElementById('remote-hrs').value = data.remoteHrs || 2;
+  setToggleVal('q-freelance', data.freelance, false);
+  document.getElementById('freelance-detail').style.display = data.freelance === 'yes' ? 'block' : 'none';
+  document.getElementById('freelance-tasks').value = data.freelanceTasks || 1;
+  document.getElementById('freelance-hrs').value = data.freelanceHrs || 2;
+  setToggleVal('q-gym', data.gym, false);
+  data.focus.forEach(f => setToggleVal('q-focus', f, true));
+  setToggleVal('q-energy', data.energy, false);
+  if (data.generated) generateSchedule(true);
+}
+
+function setToggleVal(groupId, val, add) {
+  document.getElementById(groupId).querySelectorAll('.toggle-btn').forEach(btn => {
+    if (add) { if (btn.dataset.val === val) btn.classList.add('active'); }
+    else { btn.classList.toggle('active', btn.dataset.val === val); }
+  });
+}
+
+// ── Schedule generation ───────────────────────────────────────────────────────
+function fmtTime(h, m) {
+  const s = h >= 12 ? 'pm' : 'am'; const hh = h > 12 ? h - 12 : (h===0 ? 12 : h);
+  return `${hh}:${String(m).padStart(2,'0')} ${s}`;
+}
+function addMins(h, m, mins) { const t = h*60+m+mins; return [Math.floor(t/60)%24, t%60]; }
+function fmtSecs(s) { return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+
+function makeTimer(id, durMins, color, title, sub) {
+  const secs = durMins * 60;
+  timers[id] = { total: secs, remaining: secs, running: false, interval: null };
+  return `<div class="block-body ${color}" id="block-${id}">
+    <div class="block-title">${title}</div>
+    <div class="block-sub">${sub}</div>
+    <div class="timer-row">
+      <span class="timer-display" id="td-${id}">${fmtSecs(secs)}</span>
+      <div class="timer-controls">
+        <button class="t-btn" onclick="startTimer('${id}')">▶</button>
+        <button class="t-btn" onclick="pauseTimer('${id}')">⏸</button>
+        <button class="t-btn" onclick="resetTimer('${id}')">↺</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+window.startTimer = function(id) {
+  const t = timers[id]; if (!t || t.running || t.remaining <= 0) return;
+  t.running = true;
+  t.interval = setInterval(() => {
+    t.remaining--;
+    const el = document.getElementById('td-'+id);
+    if (el) el.textContent = t.remaining > 0 ? fmtSecs(t.remaining) : 'Done!';
+    if (t.remaining <= 0) { clearInterval(t.interval); t.running = false; }
+  }, 1000);
+};
+window.pauseTimer = function(id) { const t = timers[id]; if(!t) return; clearInterval(t.interval); t.running=false; };
+window.resetTimer = function(id) {
+  const t = timers[id]; if(!t) return; clearInterval(t.interval); t.running=false; t.remaining=t.total;
+  const el = document.getElementById('td-'+id); if(el) el.textContent = fmtSecs(t.total);
+};
+
+window.generateSchedule = async function(silent) {
+  Object.values(timers).forEach(t => { if(t.interval) clearInterval(t.interval); });
+
+  const remote = getToggle('q-remote')[0];
+  const remoteHrs = parseInt(document.getElementById('remote-hrs').value)||2;
+  const freelance = getToggle('q-freelance')[0];
+  const freelanceTasks = parseInt(document.getElementById('freelance-tasks').value)||1;
+  const freelanceHrs = parseInt(document.getElementById('freelance-hrs').value)||2;
+  const gym = getToggle('q-gym')[0];
+  const focus = getToggle('q-focus');
+  const energy = getToggle('q-energy')[0];
+
+  const focusMap = { principles:'Animation principles', ae:'After Effects', design:'Design fundamentals', cinema4d:'Cinema 4D', portfolio:'Portfolio piece', tutorials:'Tutorial study' };
+  const mgTask = focus.length > 0 ? focus.map(f=>focusMap[f]).join(' + ') : 'MG study';
+  const mgMins = energy==='high' ? 120 : energy==='low' ? 60 : 90;
+
+  let blocks=[], h=6, m=0;
+
+  if (gym==='morning') {
+    blocks.push({time:[h,m], dur:90, color:'b-teal', title:'Gym', sub:'Morning workout session', cat:'gym'});
+    [h,m]=addMins(h,m,90);
+    blocks.push({time:[h,m], dur:30, color:'b-gray', title:'Shower & recovery', sub:'Wind down, prep for work', cat:'rest'});
+    [h,m]=addMins(h,m,30);
+  }
+
+  blocks.push({time:[h,m], dur:30, color:'b-gray', title:'Morning startup', sub:'Review day, hydrate, set intentions', cat:'admin'});
+  [h,m]=addMins(h,m,30);
+
+  if (energy !== 'low') {
+    blocks.push({time:[h,m], dur:mgMins, color:'b-purple', title:`MG study — ${mgTask}`, sub:`Deep focus · ${mgMins} min`, cat:'mg'});
+    [h,m]=addMins(h,m,mgMins);
+    blocks.push({time:[h,m], dur:15, color:'b-gray', title:'Break', sub:'Stretch, water', cat:'rest'});
+    [h,m]=addMins(h,m,15);
+  }
+
+  if (remote==='yes') {
+    blocks.push({time:[h,m], dur:remoteHrs*60, color:'b-blue', title:'Remote work', sub:`${remoteHrs}h client tasks`, cat:'remote'});
+    [h,m]=addMins(h,m,remoteHrs*60);
+    blocks.push({time:[h,m], dur:15, color:'b-gray', title:'Break', sub:'Step away from screen', cat:'rest'});
+    [h,m]=addMins(h,m,15);
+  }
+
+  const eatStart=13*60, curMin=h*60+m;
+  if (curMin < eatStart) {
+    if (energy==='low') {
+      blocks.push({time:[h,m], dur:mgMins, color:'b-purple', title:`MG study — ${mgTask}`, sub:`Gentle session · ${mgMins} min`, cat:'mg'});
+      [h,m]=addMins(h,m,mgMins);
+    }
+    if (h*60+m < eatStart) {
+      const rem=eatStart-(h*60+m);
+      blocks.push({time:[h,m], dur:rem, color:'b-gray', title:'Wind down / prep', sub:'Wrap up, get ready for lunch', cat:'rest'});
+      [h,m]=[13,0];
+    }
+  }
+
+  blocks.push({time:[13,0], dur:60, color:'b-amber', title:'Lunch (eating window opens)', sub:'Eat, rest, light inspiration', cat:'food'});
+  [h,m]=[14,0];
+
+  if (freelance==='yes') {
+    for (let i=0; i<freelanceTasks; i++) {
+      const lbl = freelanceTasks>1 ? ` (${i+1}/${freelanceTasks})` : '';
+      blocks.push({time:[h,m], dur:freelanceHrs*60, color:'b-coral', title:`Freelance work${lbl}`, sub:`${freelanceHrs}h delivery block`, cat:'freelance'});
+      [h,m]=addMins(h,m,freelanceHrs*60);
+      if (i<freelanceTasks-1) { blocks.push({time:[h,m], dur:20, color:'b-gray', title:'Break', sub:'Reset between tasks', cat:'rest'}); [h,m]=addMins(h,m,20); }
+    }
+  }
+
+  const eatEnd=19*60, curMin2=h*60+m;
+  if (curMin2 < eatEnd-30) {
+    const avail=Math.min(eatEnd-curMin2-30, mgMins);
+    if (avail >= 30) {
+      blocks.push({time:[h,m], dur:avail, color:'b-purple', title:'MG project / portfolio', sub:'Apply skills, build reel assets', cat:'mg'});
+      [h,m]=addMins(h,m,avail);
+    }
+  }
+
+  const dinnerDur=Math.max(19*60-(h*60+m),30);
+  blocks.push({time:[h,m], dur:dinnerDur, color:'b-amber', title:'Dinner (eating window closes 7 pm)', sub:'Last meal before 7 pm', cat:'food'});
+  h=19; m=0;
+
+  if (gym==='evening') {
+    blocks.push({time:[19,0], dur:90, color:'b-teal', title:'Gym', sub:'Evening workout', cat:'gym'});
+    [h,m]=[20,30];
+    blocks.push({time:[h,m], dur:30, color:'b-gray', title:'Shower & wind down', sub:'Recovery time', cat:'rest'});
+    [h,m]=addMins(h,m,30);
+  }
+
+  blocks.push({time:[h,m], dur:60, color:'b-green', title:'MG inspiration & research', sub:'Watch reels, Behance, study breakdowns', cat:'mg'});
+  [h,m]=addMins(h,m,60);
+  blocks.push({time:[h,m], dur:30, color:'b-gray', title:'Day review & plan tomorrow', sub:'Log session, set tomorrow\'s focus', cat:'admin'});
+  [h,m]=addMins(h,m,30);
+  blocks.push({time:[h,m], dur:60, color:'b-gray', title:'Wind down', sub:'No screens, stretch, sleep prep', cat:'rest'});
+
+  const mgTotal = blocks.filter(b=>b.cat==='mg').reduce((s,b)=>s+b.dur,0);
+  const workTotal = blocks.filter(b=>b.cat==='remote'||b.cat==='freelance').reduce((s,b)=>s+b.dur,0);
+
+  document.getElementById('summary-grid').innerHTML = `
+    <div class="sum-card"><div class="sum-val">${(mgTotal/60).toFixed(1)}h</div><div class="sum-lbl">Motion graphics</div></div>
+    <div class="sum-card"><div class="sum-val">${(workTotal/60).toFixed(1)}h</div><div class="sum-lbl">Client work</div></div>
+    <div class="sum-card"><div class="sum-val">${gym==='skip'?'—':'1.5h'}</div><div class="sum-lbl">Gym</div></div>
+    <div class="sum-card"><div class="sum-val">6h</div><div class="sum-lbl">Eating window</div></div>`;
+
+  let tid=0, html='';
+  blocks.forEach(b => {
+    const timeStr=fmtTime(b.time[0],b.time[1]);
+    const showTimer=['mg','remote','freelance','gym'].includes(b.cat);
+    tid++;
+    const id=`blk${tid}`;
+    html += `<div class="time-block"><div class="time-label">${timeStr}</div>`;
+    if (showTimer) html += makeTimer(id, b.dur, b.color, b.title, b.sub);
+    else html += `<div class="block-body ${b.color}"><div class="block-title">${b.title}</div><div class="block-sub">${b.sub}</div></div>`;
+    html += '</div>';
+  });
+
+  document.getElementById('blocks-container').innerHTML = html;
+  document.getElementById('schedule-empty').style.display='none';
+  document.getElementById('schedule-content').style.display='block';
+  scheduleGenerated = true;
+
+  if (!silent) {
+    const dayData = { remote, remoteHrs, freelance, freelanceTasks, freelanceHrs, gym, focus, energy, generated:true, mgMins:mgTotal, workMins:workTotal, ts: Date.now() };
+    await saveToCloud(`days/${todayKey()}`, dayData);
+    await saveToCloud(`streak/${todayKey()}`, true);
+  }
+};
+
+window.resetForm = function() {
+  Object.values(timers).forEach(t=>{if(t.interval)clearInterval(t.interval);});
+  scheduleGenerated=false;
+  document.getElementById('schedule-content').style.display='none';
+  document.getElementById('schedule-empty').style.display='block';
+  switchTab('today');
+  document.querySelector('.tab').click();
+};
+
+// ── Log ───────────────────────────────────────────────────────────────────────
+async function loadLog() {
+  if (!currentUser || !window._firebaseReady) return;
+  const data = await loadFromCloud('days');
+  const container = document.getElementById('log-container');
+  if (!data) { container.innerHTML='<div class="empty-state">No sessions logged yet.</div>'; return; }
+  const days = Object.entries(data).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,30);
+  if (!days.length) { container.innerHTML='<div class="empty-state">No sessions logged yet.</div>'; return; }
+  container.innerHTML = days.map(([date, d]) => {
+    const focusStr = d.focus ? d.focus.join(', ') : '—';
+    const mgH = d.mgMins ? (d.mgMins/60).toFixed(1) : '—';
+    const wH = d.workMins ? (d.workMins/60).toFixed(1) : '—';
+    return `<div class="log-entry">
+      <div class="log-date">${date}</div>
+      <div class="log-line">MG focus: <strong>${focusStr}</strong></div>
+      <div class="log-line">Study time: <strong>${mgH}h</strong> · Client work: <strong>${wH}h</strong></div>
+      <div class="log-line">Gym: <strong>${d.gym||'—'}</strong> · Energy: <strong>${d.energy||'—'}</strong></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Streak ────────────────────────────────────────────────────────────────────
+async function loadStreak() {
+  if (!currentUser || !window._firebaseReady) return;
+  const data = await loadFromCloud('streak');
+  const bar = document.getElementById('streak-bar');
+  const label = document.getElementById('streak-label');
+  if (!data) { bar.innerHTML=''; label.textContent='0 days in a row'; return; }
+  const today = todayKey();
+  const days = Object.keys(data).sort();
+  let streak=0, d=new Date();
+  for (let i=0; i<90; i++) {
+    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if (data[k]) streak++; else if (i>0) break;
+    d.setDate(d.getDate()-1);
+  }
+  label.textContent = `${streak} day${streak!==1?'s':''} in a row`;
+  const last21 = [];
+  const nd = new Date();
+  for (let i=20; i>=0; i--) { const x=new Date(nd); x.setDate(x.getDate()-i); last21.push(`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`); }
+  bar.innerHTML = last21.map(k => `<div class="streak-dot ${k===today?'today':(data[k]?'done':'')}"></div>`).join('');
+
+  const monthsStudied = Math.min(5, Math.floor(days.length / 20));
+  for (let i=1; i<=5; i++) {
+    const prog = document.getElementById('prog-'+i);
+    if (prog) prog.style.width = i <= monthsStudied ? '100%' : (i === monthsStudied+1 ? `${Math.min(100, (days.length % 20) * 5)}%` : '0%');
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+if (window._firebaseReady) { setSyncStatus('synced'); initApp(); }
+else {
+  window.addEventListener('firebase-ready', () => { setSyncStatus('synced'); initApp(); });
+  setTimeout(() => { if (!window._firebaseReady) { setSyncStatus('offline'); initApp(); } }, 4000);
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
